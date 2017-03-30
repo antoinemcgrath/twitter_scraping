@@ -1,5 +1,8 @@
 api_keys.json
 geckodriver.log
 /data
-
-
+/back_ups_tweet_id
+FILTER_ME_archive-master.zip
+/for_the_record
+/tweet_ids
+/tweet_ids_2nd
