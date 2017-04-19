@@ -7,6 +7,8 @@
 # Will break if Twitter's URL search by date is altered
 # Example of gnerated URL: https://twitter.com/search?f=tweets&vertical=default&q=from%3ABarackObama%20since%3A2016-03-14%20until%3A2016-03-15include%3Aretweets&src=typd
 
+
+
 import random
 import sys
 import os
@@ -34,15 +36,58 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from pymongo import MongoClient
 connection = c = MongoClient() #connection = c = MongoClient(localhost', '27017') #connection = Connection('localhost', '27017')
+extradelay = 1
+
+#### Arrising Errors
+#selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
+from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException
+
+##selenium.common.exceptions.WebDriverException: Message: unknown error: failed to close window in 20 seconds
+#Solution detect if still active after end command if so reinstruct
+import urllib
+import socket
+from selenium.webdriver.remote.command import Command
+def get_status(driver):
+    try:
+        driver.execute(Command.STATUS)
+        driver.quit()
+        get_status(driver)
+        return "Alive"
+    except ConnectionRefusedError:
+        return "Dead? connection refused"
+    except (socket.error, urllib.CannotSendRequest):
+        return "Dead"
+
+#
+#
+#
+####
+
+
+
 
 #### Add users to DB from specified twitter group list
 # For: https://twitter.com/cspan/lists/members-of-congress
 
+list_host = 'AGreenDCBike'
+list_name = 'climatepolitics-info'
+
 #list_host = 'Pete_Weldy'
 #list_name = 'california-dems'
 
-list_host = 'cspan'
-list_name = 'members-of-congress'
+#list_host = 'ericlinder'
+#list_name = 'ca-assembly-members'
+
+#list_host = 'apen4ej'
+#list_name = 'california-state-senate'
+
+#list_host = 'apiahf'
+#list_name = 'ca-state-assembly'
+
+#list_host = 'cspan'
+#list_name = 'members-of-congress'
 #list_name = 'foreign-leaders'
 #list_name = 'governors'
 #list_name = 'u-s-representatives'
@@ -57,7 +102,16 @@ list_dir = "tweet_ids_2nd/"
 if not os.path.exists(list_dir):
     os.makedirs(list_dir)
 
+####Close existing webdriver activity
+import psutil
+PROCNAME = "chromedriver"
+for proc in psutil.process_iter():
+    # check whether the process name matches
+    if proc.name() == PROCNAME:
+        proc.kill()
 
+
+    
 
 
 # The MongoDB connection info. This assumes your database name is Political and your collection name is tweets.
@@ -116,7 +170,7 @@ def add_new_twit_list_members_to_db():
 
     for go in range(i):
         print('Looking up users {} - {}'.format(start, end))
-        sleep(6)  # needed to prevent hitting API rate limit
+        sleep(12)  # default 6 needed to prevent hitting API rate limit
         id_batch = twit_list[start:end]
         start += 100
         end += 100
@@ -168,15 +222,16 @@ add_new_twit_list_members_to_db()
 
 #### Get DB list to update
 def get_user_list():
+    print("getting db  user list ot update")
     user_list = []
     #for x in id_collection.find({"_grabEnd": {'$ne': "2009-03-30" }},{"screen_name": 1}):
-    for x in id_collection.find({"_grabEnd": {'$ne': today}},{"screen_name": 1}):
+    for x in id_collection.find({"_grabEnd": {'$ne': today}},{"screen_name": 1}):#.sort({"_grabStart": -1}):
         diction = x
         user_list.append(diction['screen_name'])
-    print (user_list)
+    #print (user_list)
     print ("User list length is: " + str(len(user_list)))
     return (user_list)
-####
+####driver.quit()
 user_list = get_user_list()
 #ser_json = api.lookup_users(screen_names = user_list)
 
@@ -191,14 +246,26 @@ i = math.ceil(limit / 100)
 for go in range(i):
     print('Looking up users {} - {}'.format(start, end))
     sleep(6)  # needed to prevent hitting API rate limit
-    id_batch = twit_list[start:end]
+    id_batch = user_list[start:end]
     start += 100
     end += 100
     #tweets = api.statuses_lookup(id_batch)
-    print(id_batch)
+    #print(id_batch)
     u_lists = api.lookup_users(screen_names = id_batch)
+    print(len(u_lists))
     for one_of_many in u_lists:
-        all_data.append(dict(one_of_many._json))
+        #print("PRINTING ONE OF MANY")
+        #print(one_of_many)
+        try:
+            all_data.append(dict(one_of_many._json))     
+        except tweepy.error.TweepError as e:
+            print ("Tweepy Error")
+            print (e)
+            print("PRINTING ONE OF MANY")
+            print(one_of_many)
+
+
+
 
 #### Retrieve data from DB on existing user
 for another_user in all_data:
@@ -226,7 +293,14 @@ for another_user in all_data:
 
 
     # Delay Generated later each loop ## delay = 1  # time to wait on each page load before reading the page
-    driver = webdriver.Chrome()  # options are Safari() Chrome() Firefox() Safari()##Note woah selenium extensions enabling https://stackoverflow.com/questions/16511384/using-extensions-with-selenium-python
+    #driver = webdriver.Chrome() ##Updated, imported earlier and with options # options are Safari() Chrome() Firefox() Safari()##Note woah selenium extensions enabling https://stackoverflow.com/questions/16511384/using-extensions-with-selenium-python
+    chrome_options = Options()
+    chrome_options.add_argument('--dns-prefetch-disable')
+    driver = Chrome(chrome_options=chrome_options)
+
+    
+   
+    
     #datetime.date(str(tday))
     twitter_ids_filename = 'tweet_ids_' + name+'.json'
     days = (tday - _grabStart).days + 1
@@ -264,58 +338,77 @@ for another_user in all_data:
         d2 = format_day(increment_day(_grabStart, 1))
         url = form_url(d1, d2)
         #print("Fetch " + str(d1) + " through " + str(d2) + "  " + url)
-
-        driver.get(url)
-        #delay = (1+ 1000/(random.getrandbits(12)))
-        delay = (1.02)
-        sleep(delay)
-        id_collection.update({'id': one_id},{'$set' : {"_grabStart":d1}})
-        id_collection.update({'id': one_id},{'$set' : {"_grabEnd":d2}})
-
-
+        
+        #### Detect Blocking
         try:
-            found_tweets = driver.find_elements_by_css_selector(tweet_selector)
-            increment = 10
-            while len(found_tweets) >= increment:
-                #print('Loading page to load more tweets')
-                driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                sleep(delay)
+            driver.get(url)
+        except TimeoutException as ex:
+            print(ex.Message)
+            driver.navigate().refresh()
+   
+   
+        page_source = driver.page_source
+        #print(page_source)
+        if page_source.find(".block") > 0:
+            mydate = datetime.datetime.now()
+            print(page_source)
+            print (mydate.strftime('Blocked at is %d %B'))
+            extradelay = extradelay + extradelay
+            print("Sleeping for " + str(extradelay))
+            sleep(extradelay)
+        else:
+            #print ("all good")
+    
+            #delay = (1+ 1000/(random.getrandbits(12)))
+            delay = (1.02)
+            sleep(delay)
+            id_collection.update({'id': one_id},{'$set' : {"_grabStart":d1}})
+            id_collection.update({'id': one_id},{'$set' : {"_grabEnd":d2}})
+
+
+            try:
                 found_tweets = driver.find_elements_by_css_selector(tweet_selector)
-                increment += 10
+                increment = 10
+                while len(found_tweets) >= increment:
+                    #print('Loading page to load more tweets')
+                    driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                    sleep(delay)
+                    found_tweets = driver.find_elements_by_css_selector(tweet_selector)
+                    increment += 10
 
-            #print('{} tweets fetched, {} total'.format(len(found_tweets), len(ids)))
+                #print('{} tweets fetched, {} total'.format(len(found_tweets), len(ids)))
 
-            for tweet in found_tweets:
-                try:
-                    id = tweet.find_element_by_css_selector(id_selector).get_attribute('href').split('/')[-1]
-                    ids.append(id)
-                except StaleElementReferenceException as e:
-                    print('lost element reference', tweet)
+                for tweet in found_tweets:
+                    try:
+                        id = tweet.find_element_by_css_selector(id_selector).get_attribute('href').split('/')[-1]
+                        ids.append(id)
+                    except StaleElementReferenceException as e:
+                        print('lost element reference', tweet)
 
-        except NoSuchElementException:
-            #print('no tweets on this day')
-            pass
-        _grabStart = increment_day(_grabStart, 1)
+            except NoSuchElementException:
+                #print('no tweets on this day')
+                pass
+            _grabStart = increment_day(_grabStart, 1)
 
-
-
-
-        try:
-            with open(list_dir + twitter_ids_filename) as f:
-                all_ids = ids + json.load(f)
-                data_to_write = list(set(all_ids))
-                #print("Between " + str(d1) + " and " + str(d2) + " user tweeted " + str(len(found_tweets)) + " times. Total fetched from user in this session " + str(len(ids)) + ' Tweets in file: ', str(len(data_to_write)))
-        except FileNotFoundError:
-            with open(list_dir + twitter_ids_filename, 'w') as f:
-                all_ids = ids
-                data_to_write = list(set(all_ids))
-                #print("Between " + str(d1) + " and " + str(d2) + " user tweeted " + str(len(found_tweets)) + " times. Total fetched from user in this session " + str(len(ids)) + ' Tweets in file: ', str(len(data_to_write)))
-        with open(list_dir + twitter_ids_filename, 'w') as outfile:
-            json.dump(data_to_write, outfile)
+            try:
+                with open(list_dir + twitter_ids_filename) as f:
+                    all_ids = ids + json.load(f)
+                    data_to_write = list(set(all_ids))
+                    #print("Between " + str(d1) + " and " + str(d2) + " user tweeted " + str(len(found_tweets)) + " times. Total fetched from user in this session " + str(len(ids)) + ' Tweets in file: ', str(len(data_to_write)))
+            except FileNotFoundError:
+                with open(list_dir + twitter_ids_filename, 'w') as f:
+                    all_ids = ids
+                    data_to_write = list(set(all_ids))
+                    #print("Between " + str(d1) + " and " + str(d2) + " user tweeted " + str(len(found_tweets)) + " times. Total fetched from user in this session " + str(len(ids)) + ' Tweets in file: ', str(len(data_to_write)))
+            with open(list_dir + twitter_ids_filename, 'w') as outfile:
+                json.dump(data_to_write, outfile)
     end_timer = time.time()
     total_t = end_timer - start_timer
     print(str("%.0f" % ((total_t)/60)) + " minutes taken to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
-    driver.close()
+    #print(get_status(driver))#do not allow with driver.quit() in loop
+    #driver.close()
+    driver.quit()
+    print(get_status(driver))
 
 
 #print ("Political db tweet count is : " + str(tweet_count))

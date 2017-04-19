@@ -37,8 +37,8 @@ print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
 import sys
 import os
 # Retrieve Twitter API credentials
-#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
-twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter05.csv" #CKT
+twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
+#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter05.csv" #CKT
 
 with open(twitterKEYfile, 'r') as f:
     e = f.read()
@@ -65,7 +65,7 @@ def tweet_2_DB_loop(ids):
 
     for go in range(i):
         print('currently getting {} - {}'.format(start, end))
-        sleep(6)  # needed to prevent hitting API rate limit
+        sleep(6)  # default 6 needed to prevent hitting API rate limit
         id_batch = ids[start:end]
         start += 100
         end += 100
@@ -95,6 +95,7 @@ def tweet_2_DB_loop(ids):
 
 
 tweet_ids=""
+#print(glob.glob('tweet_ids/*.json'))
 files = glob.glob('tweet_ids/*.json')
 for x in files:
     print("Starting new list")
