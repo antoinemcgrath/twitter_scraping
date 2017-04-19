@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
-#script = "/mnt/8TB/GITS/twitter_scraping/keep_running.py"
+#script = "/mnt/8TB/GITS/twitter_scraping/cron__twitter_DB_update_id_list.py"
 
 #Execution schedule is everyday at 2:30AM and PM  ##crontab -e
-##30 2 * * * /usr/bin/python3 /mnt/8TB/GITS/mw_cp/mw_creation_of_site_backups.py
-##30 14 * * * /usr/bin/python3 /mnt/8TB/GITS/mw_cp/mw_creation_of_site_backups.py
+##30 2 * * * /usr/bin/python3 /mnt/8TB/GITS/twitter_scraping/cron__twitter_DB_update_id_list.py
+##30 14 * * * /usr/bin/python3 /mnt/8TB/GITS/twitter_scraping/cron__twitter_DB_update_id_list.py
 
 
 

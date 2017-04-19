@@ -1,11 +1,37 @@
 #!/usr/bin/python
+
+
+#############################################################################################################
+#### A big thank you to https://github.com/bpb27 for the code https://github.com/bpb27/twitter_scraping  ####
+#############################################################################################################
+
+
+#### twitter_DB_update_id_list.py
+#### --Collect tweet ids & update mongo DB with collection progress
+##
+#### twitter_DB_update_tweets_metadata.py 
+#### --Query API with tweet ids & add json response to mongoDB
+##
+#### cron__twitter_DB_update_id_list.py
+#### --Check first to see if the code is running before starting it (for cron starts)
+##
+#### This two step disjunction allows you to easily add tweets to your DB from a list of tweet ids that others have collected
+#### Likewise this method allows you to share your list of tweetids others can then fecth full tweet json metadata from the twitter API
+
+
 # cd /mnt/8TB/GITS/twitter_scraping
 # python3 twitter_DB_update_id_list.py
-# Compiles tweet IDs to /mnt/8TB/GITS/twitter_scraping/tweet_ids/
-# Follow up with 2nd script to enter tweets to DB: python3 test_mongo_metadata.py
 
-# Will break if Twitter's URL search by date is altered
+# Compiles all tweet ids fetched from a users single day timeline & updates mongodb with the date completed
 # Example of gnerated URL: https://twitter.com/search?f=tweets&vertical=default&q=from%3ABarackObama%20since%3A2016-03-14%20until%3A2016-03-15include%3Aretweets&src=typd
+
+
+# ERRORS: After prolonged runs (~36hrs+) may start receiving twitter pages with no tweets. 
+#         Activity is within twitter rate limit.
+#         Potential browser error
+#         Potential ISP problem
+#         Possibly triggered by brief drop in internet
+
 
 
 
