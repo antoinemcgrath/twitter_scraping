@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 
-#############################################################################################################
-#### A big thank you to https://github.com/bpb27 for the code https://github.com/bpb27/twitter_scraping  ####
-#############################################################################################################
+#######################################################################################################################
+#### A big thank you to https://github.com/bpb27 for the base/seed code https://github.com/bpb27/twitter_scraping  ####
+#######################################################################################################################
+#### MongoDB enhanced version at: https://github.com/antoinemcgrath/twitter_scraping
 
 
 #### twitter_DB_update_id_list.py
@@ -15,8 +16,8 @@
 #### cron__twitter_DB_update_id_list.py
 #### --Check first to see if the code is running before starting it (for cron starts)
 ##
-#### This two step disjunction allows you to easily add tweets to your DB from a list of tweet ids that others have collected
-#### Likewise this method allows you to share your list of tweetids others can then fecth full tweet json metadata from the twitter API
+#### This two step disjunction allows one to add tweets to your DB from a list of tweet ids that others have collected
+#### Likewise this method allows one to share lists of tweetids
 
 
 # cd /mnt/8TB/GITS/twitter_scraping

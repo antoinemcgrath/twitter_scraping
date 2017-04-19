@@ -1,6 +1,6 @@
 
 A big thank you to https://github.com/bpb27 for the base/seed code https://github.com/bpb27/twitter_scraping  ####
-Current MongoDB enhanced version at: https://github.com/antoinemcgrath/twitter_scraping
+MongoDB enhanced version at: https://github.com/antoinemcgrath/twitter_scraping
 
      This two step disjunction allows one to add tweets to your DB from a list of tweet ids that others have collected
      Likewise this method allows one to share lists of tweetids

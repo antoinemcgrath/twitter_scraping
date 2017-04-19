@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 
-#############################################################################################################
-#### A big thank you to https://github.com/bpb27 for the code https://github.com/bpb27/twitter_scraping  ####
-#############################################################################################################
+#######################################################################################################################
+#### A big thank you to https://github.com/bpb27 for the base/seed code https://github.com/bpb27/twitter_scraping  ####
+#######################################################################################################################
+#### MongoDB enhanced version at: https://github.com/antoinemcgrath/twitter_scraping
 
 
 #### twitter_DB_update_id_list.py
@@ -15,8 +16,8 @@
 #### cron__twitter_DB_update_id_list.py
 #### --Check first to see if the code is running before starting it (for cron starts)
 ##
-#### This two step disjunction allows you to easily add tweets to your DB from a list of tweet ids that others have collected
-#### Likewise this method allows you to share your list of tweetids others can then fecth full tweet json metadata from the twitter API
+#### This two step disjunction allows one to add tweets to your DB from a list of tweet ids that others have collected
+#### Likewise this method allows one to share lists of tweetids
 
 
 # cd /mnt/8TB/GITS/twitter_scraping
@@ -440,49 +441,17 @@ for another_user in all_data:
 #print ("Political db tweet count is : " + str(tweet_count))
 
 '''
+Notes from a reviewer::
 pyMongo uses datetime.datetime for dates
 unless you're inserting datetime.datetime objects, they're not gonna be dates in the mongodb they're gonna be strings
-
 it looks like _accountStart is a STRING, not a datetime object (see line 139 and 141)
 _grabStart and _grabEnd are also strings
-
 
 what's the purpose of the "if" statement on line 205
 if the user isn't present in the database, will that be bad?
 right, but i think that the script will crash after printing that error message because some vital variables (_grabStart, _grabEnd, etc.) are assigned only in the "else" case so i think you want a "continue" statement at the end of the "if" block like, if found != 1, print the error, then "continue" to skip that user and go onto the next one then you can delete the "else" and move that code into the main flow
-
 in general it's good to have things like line 230, and 231, at the top of your file once especially cuz where they are right now results in that stuff being imported every loop iteration better to just import it once at the top
-
 also the "format_day, "form_url" and "increment_day" functions should really be outside of that loop
 
-
-so lines 266 and 267, updating the "_grabStart" and "_grabEnd"
-
-you should really only do that update after it tries to fetch the tweets (or, perhaps, only if it succeeds) right?
-
-because imagine if the script crashes (or is terminated) after line 267
-
-you'll have recorded in the database that you fetched that day's tweets, but the code to fetch them wouldn't have actually been run
-
-actually.  i don't get it -- d1 is _grabStart + 0 days, so it's just _grabStart
-
-are you actually changing anything in the database on 266 and 267?
-
-it looks like you're just updating the value to the same value
-
-oh nvm, _grabStart is incremented in that loop
-
-so yeah, my original comment stands :)
-
-you shouldn't update the database until you've actually done the fetch
-
-or wait, you're not
-
-nevermind
-
-forget it all :)
-
-because the update is actually occuring "after" the fetch, since you're updating it with the "current" value
-
-i was just confusing because the update code occurs before the fetch code, but really it's doing the update based on the last iteration, not the current iteration
+Rewrite update code to occure after fetch code (for sake of clarity)
 '''
