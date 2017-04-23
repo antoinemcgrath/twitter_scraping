@@ -155,6 +155,7 @@ id_collection = db.id_politicians
 
 # Retrieve Twitter API credentials
 twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
+#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #ck
 with open(twitterKEYfile, 'r') as f:
     e = f.read()
     keys = e.split(',')
