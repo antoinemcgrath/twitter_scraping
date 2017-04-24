@@ -10,7 +10,7 @@
 #### twitter_DB_update_id_list.py
 #### --Collect tweet ids & update mongo DB with collection progress
 ##
-#### twitter_DB_update_tweets_metadata.py 
+#### twitter_DB_update_tweets_metadata.py
 #### --Query API with tweet ids & add json response to mongoDB
 ##
 #### cron__twitter_DB_update_id_list.py
@@ -27,7 +27,7 @@
 # Example of gnerated URL: https://twitter.com/search?f=tweets&vertical=default&q=from%3ABarackObama%20since%3A2016-03-14%20until%3A2016-03-15include%3Aretweets&src=typd
 
 
-# ERRORS: After prolonged runs (~36hrs+) may start receiving twitter pages with no tweets. 
+# ERRORS: After prolonged runs (~36hrs+) may start receiving twitter pages with no tweets.
 #         Activity is within twitter rate limit.
 #         Potential browser error
 #         Potential ISP problem
@@ -67,15 +67,14 @@ extradelay = 1
 
 #### Arrising Errors
 #selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
+import urllib
+import socket
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
-
+from selenium.webdriver.remote.command import Command
 ##selenium.common.exceptions.WebDriverException: Message: unknown error: failed to close window in 20 seconds
 #Solution detect if still active after end command if so reinstruct
-import urllib
-import socket
-from selenium.webdriver.remote.command import Command
 def get_status(driver):
     try:
         driver.execute(Command.STATUS)
@@ -83,49 +82,35 @@ def get_status(driver):
         get_status(driver)
         return "Alive"
     except ConnectionRefusedError:
-        return "Dead? connection refused"
+        return "Connection refused"
     except (socket.error, urllib.CannotSendRequest):
         return "Dead"
-
-#
-#
 #
 ####
 
-
-
-
 #### Add users to DB from specified twitter group list
-# For: https://twitter.com/cspan/lists/members-of-congress
+# For: https://twitter.com/AGreenDCBike/lists/climatepolitics-info
+# Run: python3 twitter_DB_update_id_list.py AGreenDCBike climatepolitics-info
+list_host = (sys.argv[1:2]) #Example: 'AGreenDCBike'
+list_name = (sys.argv[2:3]) #Example: 'climatepolitics-info'
 
-list_host = 'AGreenDCBike'
-list_name = 'climatepolitics-info'
+#'Pete_Weldy' 'california-dems'
+#'ericlinder' 'ca-assembly-members'
+#'apen4ej' 'california-state-senate'
+#'apiahf' 'ca-state-assembly'
+#'cspan' 'members-of-congress'
+#'cspan' 'foreign-leaders'
+#'cspan' 'governors'
+#'cspan' 'u-s-representatives'
+#'cspan' 'senators'
+#'AGreenDCBike' 'us-gov'
+#'AGreenDCBike' 'climatepolitics-info'
 
-#list_host = 'Pete_Weldy'
-#list_name = 'california-dems'
+#### Set which twitter API credentials to access
+twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
+#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #ck
 
-#list_host = 'ericlinder'
-#list_name = 'ca-assembly-members'
-
-#list_host = 'apen4ej'
-#list_name = 'california-state-senate'
-
-#list_host = 'apiahf'
-#list_name = 'ca-state-assembly'
-
-#list_host = 'cspan'
-#list_name = 'members-of-congress'
-#list_name = 'foreign-leaders'
-#list_name = 'governors'
-#list_name = 'u-s-representatives'
-#list_name = 'senators'
-
-# For: https://twitter.com/AGreenDCBike/lists/us-gov
-#list_host = 'AGreenDCBike'
-#list_name = 'us-gov'
-
-list_dir = "tweet_ids_2nd/"
-#list_dir = "tweet_ids/" + list_host + "/" + list_name + "/"
+list_dir = "tweet_ids_list/"
 if not os.path.exists(list_dir):
     os.makedirs(list_dir)
 
@@ -138,35 +123,34 @@ for proc in psutil.process_iter():
         proc.kill()
 
 
-    
-
-
-# The MongoDB connection info. This assumes your database name is Political and your collection name is tweets.
-db = connection.Twitter #db.tweets.ensure_index("id", unique=True, dropDups=True)
-db.politicians.ensure_index( "id", unique=True, dropDups=True )
-collection = db.politicians
-
-db.id_politicians.ensure_index( "id", unique=True, dropDups=True )
-id_collection = db.id_politicians
-
-#### tweet_count = db.politicians.count("id", exists= True)
-#### print ("Total tweet count in DB is: " + str(tweet_count))
+def connect_mongoDB():
+    # The MongoDB connection info. Database name is Twitter and your collection name is politicians.
+    db = connection.Twitter #db.tweets.ensure_index("id", unique=True, dropDups=True)
+    db.politicians.ensure_index( "id", unique=True, dropDups=True )
+    collection = db.politicians
+    # The MongoDB connection info. Database name is Twitter and your collection name is id_politicians.
+    db.id_politicians.ensure_index( "id", unique=True, dropDups=True )
+    id_collection = db.id_politicians
+    #### tweet_count = db.politicians.count("id", exists= True)
+    #### print ("Total tweet count in DB is: " + str(tweet_count))
+connect_mongoDB()
 
 
 # Retrieve Twitter API credentials
-twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
-#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #ck
-with open(twitterKEYfile, 'r') as f:
-    e = f.read()
-    keys = e.split(',')
-    consumer_key = keys[0]  #consumer_key
-    consumer_secret = keys[1]  #consumer_secret
-    access_key = keys[2]  #access_key
-    access_secret = keys[3]  #access_secret
-# http://tweepy.readthedocs.org/en/v3.1.0/getting_started.html#api
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_key, access_secret)
-api = tweepy.API(auth)
+def get_twitter_keys(twitterKEYfile):
+    with open(twitterKEYfile, 'r') as f:
+        e = f.read()
+        keys = e.split(',')
+        consumer_key = keys[0]  #consumer_key
+        consumer_secret = keys[1]  #consumer_secret
+        access_key = keys[2]  #access_key
+        access_secret = keys[3]  #access_secret
+    # http://tweepy.readthedocs.org/en/v3.1.0/getting_started.html#api
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_key, access_secret)
+    api = tweepy.API(auth)
+    return (api)
+api = get_twitter_keys(twitterKEYfile)
 
 #### 2DO (Add pull from twitter API of list)
 #### Retrieve a list of users from twitter lists and add them to the DB if they do not exists
@@ -186,8 +170,6 @@ print (len(twit_list))
 
 #### Add new users from twit list to the DB (id collection)
 def add_new_twit_list_members_to_db():
-
-
     all_data = []
     start = 0
     end = 100
@@ -285,7 +267,7 @@ for go in range(i):
         #print("PRINTING ONE OF MANY")
         #print(one_of_many)
         try:
-            all_data.append(dict(one_of_many._json))     
+            all_data.append(dict(one_of_many._json))
         except tweepy.error.TweepError as e:
             print ("Tweepy Error")
             print (e)
@@ -326,13 +308,13 @@ for another_user in all_data:
     chrome_options.add_argument('--dns-prefetch-disable')
     driver = Chrome(chrome_options=chrome_options)
 
-    
-   
-    
+
+
+
     #datetime.date(str(tday))
     twitter_ids_filename = 'tweet_ids_' + name+'.json'
     days = (tday - _grabStart).days + 1
-    fetched_days = str(days) 
+    fetched_days = str(days)
     #print( name + " Days to fetch: " + str(days))
     #input("Press Enter to continue")
     import time
@@ -366,15 +348,15 @@ for another_user in all_data:
         d2 = format_day(increment_day(_grabStart, 1))
         url = form_url(d1, d2)
         #print("Fetch " + str(d1) + " through " + str(d2) + "  " + url)
-        
+
         #### Detect Blocking
         try:
             driver.get(url)
         except TimeoutException as ex:
             print(ex.Message)
             driver.navigate().refresh()
-   
-   
+
+
         page_source = driver.page_source
         #print(page_source)
         if page_source.find(".block") > 0:
@@ -386,7 +368,7 @@ for another_user in all_data:
             sleep(extradelay)
         else:
             #print ("all good")
-    
+
             #delay = (1+ 1000/(random.getrandbits(12)))
             delay = (1.02)
             sleep(delay)
