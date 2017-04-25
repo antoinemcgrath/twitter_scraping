@@ -244,7 +244,7 @@ def add_new_twit_list_members_to_db():
             pass
     print (str(user_add_count) + " new users were added to the DB")
 #############
-####
+#############
 #input("Press Enter to add new users to DB ")
 
 
@@ -389,8 +389,11 @@ for another_user in all_data:
     else:
         for x in id_collection.find(({'id': one_id})):
             diction = x
-            _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
-            _grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d'))
+            _grabStart = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d'))
+            _grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d')) #(Plus ten)
+            
+            #_grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
+            #_grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d'))
             print(str(_grabStart) + " through " + today + " is our interest for: " + diction['screen_name'])
 
 
@@ -444,7 +447,7 @@ for another_user in all_data:
 
     for day in range(days):
         d1 = format_day(increment_day(_grabStart, 0))
-        d2 = format_day(increment_day(_grabStart, 1))
+        d2 = format_day(increment_day(_grabStart, 10))
         url = form_url(d1, d2)
         #print("Fetch " + str(d1) + " through " + str(d2) + "  " + url)
 
