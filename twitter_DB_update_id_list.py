@@ -76,6 +76,7 @@ from selenium.webdriver.remote.command import Command
 ##selenium.common.exceptions.WebDriverException: Message: unknown error: failed to close window in 20 seconds
 #Solution detect if still active after end command if so reinstruct
 def get_status(driver):
+    print("Loop1")
     try:
         driver.execute(Command.STATUS)
         driver.quit()
@@ -85,6 +86,12 @@ def get_status(driver):
         return "Connection refused"
     except (socket.error, urllib.CannotSendRequest):
         return "Dead"
+        
+        
+        
+        
+        
+        
 #
 ####
 
@@ -93,8 +100,7 @@ def get_status(driver):
 # Run: python3 twitter_DB_update_id_list.py AGreenDCBike climatepolitics-info
 list_host = str(sys.argv[1:2])[2:-2] #Example: 'AGreenDCBike'
 list_name = str(sys.argv[2:3])[2:-2]#Example: 'climatepolitics-info'
-print (list_host)
-print (list_name)
+
 
 #list_host = 'AGreenDCBike'
 #list_name = 'climatepolitics-info'
@@ -119,6 +125,8 @@ list_dir = "tweet_ids_list/"
 if not os.path.exists(list_dir):
     os.makedirs(list_dir)
 
+
+
 ####Close existing webdriver activity
 import psutil
 PROCNAME = "chromedriver"
@@ -128,21 +136,34 @@ for proc in psutil.process_iter():
         proc.kill()
 
 
+
 def connect_mongoDB():
-    # The MongoDB connection info. Database name is Twitter and your collection name is politicians.
+    print("Loop2")
     db = connection.Twitter #db.tweets.ensure_index("id", unique=True, dropDups=True)
+    print("Mongo Twitter DB Connected") 
+    # The MongoDB connection info. Database name is Twitter and your collection name is politicians.
     db.politicians.ensure_index( "id", unique=True, dropDups=True )
     collection = db.politicians
+    print("Collection politicians connected") 
     # The MongoDB connection info. Database name is Twitter and your collection name is id_politicians.
     db.id_politicians.ensure_index( "id", unique=True, dropDups=True )
     id_collection = db.id_politicians
+    print("Collection id_politicians connected") 
     #### tweet_count = db.politicians.count("id", exists= True)
     #### print ("Total tweet count in DB is: " + str(tweet_count))
-connect_mongoDB()
-
+    #return(db, collection, id_collection)
+    return(collection, id_collection)
+    
+    
+    
+database_connections = connect_mongoDB()
+#db = database_connections[0]
+collection = database_connections[0]
+id_collection = database_connections[1]
 
 # Retrieve Twitter API credentials
 def get_twitter_keys(twitterKEYfile):
+    print("Loop3")
     with open(twitterKEYfile, 'r') as f:
         e = f.read()
         keys = e.split(',')
@@ -155,26 +176,30 @@ def get_twitter_keys(twitterKEYfile):
     auth.set_access_token(access_key, access_secret)
     api = tweepy.API(auth)
     return (api)
+    
+    
+    
+    
 api = get_twitter_keys(twitterKEYfile)
 
 #### 2DO (Add pull from twitter API of list)
 #### Retrieve a list of users from twitter lists and add them to the DB if they do not exists
 def get_twit_list():
+    print("Loop4")
     twit_list = []
     twitter_pull = tweepy.Cursor(api.list_members, list_host, list_name).items()
     for user in twitter_pull:
         twit_list.append(user.screen_name)
     ####twit_list =  ['realDonaldTrump', 'BarackObama'] #Example list
     return (twit_list)
-####
-###input("Press Enter to retrieve users names from twitter list")
-twit_list = get_twit_list()
-print (str(twit_list))
-print (len(twit_list))
 
 
+
+################
+######## This definition should be improved (after the rest gets improved)
 #### Add new users from twit list to the DB (id collection)
 def add_new_twit_list_members_to_db():
+    print("Loop5")
     all_data = []
     start = 0
     end = 100
@@ -193,11 +218,6 @@ def add_new_twit_list_members_to_db():
         u_lists = api.lookup_users(screen_names = id_batch)
         for one_of_many in u_lists:
             all_data.append(dict(one_of_many._json))
-
-
-
-
-
     user_add_count = 0
     user_json = all_data
     for a_user in user_json:
@@ -223,10 +243,60 @@ def add_new_twit_list_members_to_db():
         else:
             pass
     print (str(user_add_count) + " new users were added to the DB")
-
+#############
 ####
 #input("Press Enter to add new users to DB ")
-add_new_twit_list_members_to_db()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####
+###input("Press Enter to retrieve users names from twitter list")
+
+print("here line 198 now")
+try:
+    sys.argv[2]
+    #print(sys.argv[2:3])
+    #print(sys.argv[2:3])
+except IndexError:
+    sys_arg_exists = False
+    print("No new list provided for addition to DB")
+else:
+    sys_arg_exists = True
+    twit_list = get_twit_list()
+    print ("if list host error follows the problem is that sysarg[2:3] exists as blank")
+    print (list_host)
+    print (list_name)
+    print (str(twit_list))
+    print (len(twit_list))
+    print("Adding list of handles to DB")
+    add_new_twit_list_members_to_db()
+
+
+
+
+
 
 
 
@@ -237,7 +307,8 @@ add_new_twit_list_members_to_db()
 
 #### Get DB list to update
 def get_user_list():
-    print("getting db  user list ot update")
+    print("Loop6")
+    print("getting db  user list to update")
     user_list = []
     #for x in id_collection.find({"_grabEnd": {'$ne': "2009-03-30" }},{"screen_name": 1}):
     for x in id_collection.find({"_grabEnd": {'$ne': today}},{"screen_name": 1}):#.sort({"_grabStart": -1}):
@@ -249,6 +320,22 @@ def get_user_list():
 ####driver.quit()
 user_list = get_user_list()
 #ser_json = api.lookup_users(screen_names = user_list)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 all_data = []
 start = 0
@@ -331,20 +418,27 @@ for another_user in all_data:
     firsttweet_selector = 'first-tweet-wrapper'
 
     ids = []
+    def increment_day(date, i):
+        print("Loop7 returning::: date + datetime.timedelta(days=i)")
+        #from datetime import datetime, timedelta
+        #print (datetime.timedelta(days=i))
+        return date + datetime.timedelta(days=i)
+
 
     def format_day(date):
+        print("Loop8 returning::: '-'.join([year, month, day])")
         day = '0' + str(date.day) if len(str(date.day)) == 1 else str(date.day)
         month = '0' + str(date.month) if len(str(date.month)) == 1 else str(date.month)
         year = str(date.year)
         return '-'.join([year, month, day])
+        
+        
     def form_url(since, until):
+        print("Loop9 returning::: p1 + p2 (the link)")
         p1 = 'https://twitter.com/search?f=tweets&vertical=default&q=from%3A'
         p2 =  name + '%20since%3A' + since + '%20until%3A' + until + 'include%3Aretweets&src=typd'
         return p1 + p2
-    def increment_day(date, i):
-        #from datetime import datetime, timedelta
-        #print (datetime.timedelta(days=i))
-        return date + datetime.timedelta(days=i)
+
 
 
 
@@ -363,9 +457,9 @@ for another_user in all_data:
 
 
         page_source = driver.page_source
-        #### add script to save for trouble shooting detection
-        with open() as f:
-            f.write(pagesource)
+############ add script to save for trouble shooting detection
+        ##with open() as f:
+        ##    f.write(pagesource)
 ################
         #print(page_source)
 
