@@ -86,12 +86,12 @@ def get_status(driver):
         return "Connection refused"
     except (socket.error, urllib.CannotSendRequest):
         return "Dead"
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
 #
 ####
 
@@ -140,22 +140,22 @@ for proc in psutil.process_iter():
 def connect_mongoDB():
     print("Loop2")
     db = connection.Twitter #db.tweets.ensure_index("id", unique=True, dropDups=True)
-    print("Mongo Twitter DB Connected") 
+    print("Mongo Twitter DB Connected")
     # The MongoDB connection info. Database name is Twitter and your collection name is politicians.
     db.politicians.ensure_index( "id", unique=True, dropDups=True )
     collection = db.politicians
-    print("Collection politicians connected") 
+    print("Collection politicians connected")
     # The MongoDB connection info. Database name is Twitter and your collection name is id_politicians.
     db.id_politicians.ensure_index( "id", unique=True, dropDups=True )
     id_collection = db.id_politicians
-    print("Collection id_politicians connected") 
+    print("Collection id_politicians connected")
     #### tweet_count = db.politicians.count("id", exists= True)
     #### print ("Total tweet count in DB is: " + str(tweet_count))
     #return(db, collection, id_collection)
     return(collection, id_collection)
-    
-    
-    
+
+
+
 database_connections = connect_mongoDB()
 #db = database_connections[0]
 collection = database_connections[0]
@@ -176,10 +176,10 @@ def get_twitter_keys(twitterKEYfile):
     auth.set_access_token(access_key, access_secret)
     api = tweepy.API(auth)
     return (api)
-    
-    
-    
-    
+
+
+
+
 api = get_twitter_keys(twitterKEYfile)
 
 #### 2DO (Add pull from twitter API of list)
@@ -374,8 +374,8 @@ for another_user in all_data:
     start_timer = time.time()
     name = str(dict(another_user)['screen_name'])
     one_id = (dict(another_user)['id'])   #print(one_id)
-    found = id_collection.find({'id': one_id}).count()
-
+    id_list = id_collection.find({'id': one_id})
+    found = id_list.count()
     #### If user is not in DB once then present an error
     if found != 1:
         print ("Error with user twitter id: " +str(one_id))
@@ -387,15 +387,18 @@ for another_user in all_data:
 
     #### Existing user access found once, fetch their last tweet capture dates
     else:
-        for x in id_collection.find(({'id': one_id})):
+        print("we have a user to work on, line 390")
+        #for x in id_collection.find(({'id': one_id})):
+        for x in id_list:
             diction = x
-            _grabStart = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d'))
-            _grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d')) #(Plus ten)
-            
+            _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
+            _grabEnd = _grabStart + datetime.timedelta(days=10)
+
             #_grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
             #_grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d'))
             print(str(_grabStart) + " through " + today + " is our interest for: " + diction['screen_name'])
-
+            print(str(_grabStart))
+            print(str(today))
 
     # Delay Generated later each loop ## delay = 1  # time to wait on each page load before reading the page
     #driver = webdriver.Chrome() ##Updated, imported earlier and with options # options are Safari() Chrome() Firefox() Safari()##Note woah selenium extensions enabling https://stackoverflow.com/questions/16511384/using-extensions-with-selenium-python
@@ -410,7 +413,7 @@ for another_user in all_data:
     twitter_ids_filename = 'tweet_ids_' + name+'.json'
     days = (tday - _grabStart).days + 1
     fetched_days = str(days)
-    #print( name + " Days to fetch: " + str(days))
+    print( name + " Days to fetch: " + fetched_days
     #input("Press Enter to continue")
     import time
     import sys
@@ -434,8 +437,8 @@ for another_user in all_data:
         month = '0' + str(date.month) if len(str(date.month)) == 1 else str(date.month)
         year = str(date.year)
         return '-'.join([year, month, day])
-        
-        
+
+
     def form_url(since, until):
         print("Loop9 returning::: p1 + p2 (the link)")
         p1 = 'https://twitter.com/search?f=tweets&vertical=default&q=from%3A'
@@ -444,11 +447,13 @@ for another_user in all_data:
 
 
 
-
+    data_to_write = ""
+    ##### can we do days/10?
     for day in range(days):
-        d1 = format_day(increment_day(_grabStart, 0))
-        d2 = format_day(increment_day(_grabStart, 10))
+        d1 = format_day(increment_day(_grabStart, 10))
+        d2 = format_day(increment_day(_grabEnd, 10))
         url = form_url(d1, d2)
+        print(str(url))
         #print("Fetch " + str(d1) + " through " + str(d2) + "  " + url)
 
         #### Detect Blocking
@@ -479,10 +484,11 @@ for another_user in all_data:
             #delay = (1+ 1000/(random.getrandbits(12)))
             delay = (1.02)
             sleep(delay)
-            id_collection.update({'id': one_id},{'$set' : {"_grabStart":d1}})
-            id_collection.update({'id': one_id},{'$set' : {"_grabEnd":d2}})
+            id_collection.update({'id': one_id},{'$set' : {"_grabStart":d2}})
+            #id_collection.update({'id': one_id},{'$set' : {"_grabEnd":d2}})
 
 
+            #### Scroll threw page load page grab tweet IDs
             try:
                 found_tweets = driver.find_elements_by_css_selector(tweet_selector)
                 increment = 10
@@ -492,9 +498,7 @@ for another_user in all_data:
                     sleep(delay)
                     found_tweets = driver.find_elements_by_css_selector(tweet_selector)
                     increment += 10
-
                 #print('{} tweets fetched, {} total'.format(len(found_tweets), len(ids)))
-
                 for tweet in found_tweets:
                     try:
                         id = tweet.find_element_by_css_selector(id_selector).get_attribute('href').split('/')[-1]
@@ -505,8 +509,10 @@ for another_user in all_data:
             except NoSuchElementException:
                 #print('no tweets on this day')
                 pass
-            _grabStart = increment_day(_grabStart, 1)
+            #_grabStart = increment_day(_grabStart, 1)
 
+
+            ##### Write twitter IDs to ID list json files
             try:
                 with open(list_dir + twitter_ids_filename) as f:
                     all_ids = ids + json.load(f)
@@ -520,10 +526,23 @@ for another_user in all_data:
             with open(list_dir + twitter_ids_filename, 'w') as outfile:
                 json.dump(data_to_write, outfile)
     end_timer = time.time()
+
     total_t = end_timer - start_timer
+    #try:
+    #    data_to_write
+    #except NameError:
+    #    data_exists = False
+    #    print("No new new data for addition to DB")
+    #else:
+    #    sys_arg_exists = True
+
+
     print(str("%.0f" % ((total_t)/60)) + " minutes taken to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
-    #print(get_status(driver))#do not allow with driver.quit() in loop
-    #driver.close()
+        #except NameError:
+        #           print("name error caught")
+        #           pass
+        #print(get_status(driver))#do not allow with driver.quit() in loop
+        #driver.close()
     driver.quit()
     print(get_status(driver))
 
