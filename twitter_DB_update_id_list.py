@@ -91,8 +91,13 @@ def get_status(driver):
 #### Add users to DB from specified twitter group list
 # For: https://twitter.com/AGreenDCBike/lists/climatepolitics-info
 # Run: python3 twitter_DB_update_id_list.py AGreenDCBike climatepolitics-info
-list_host = (sys.argv[1:2]) #Example: 'AGreenDCBike'
-list_name = (sys.argv[2:3]) #Example: 'climatepolitics-info'
+list_host = str(sys.argv[1:2])[2:-2] #Example: 'AGreenDCBike'
+list_name = str(sys.argv[2:3])[2:-2]#Example: 'climatepolitics-info'
+print (list_host)
+print (list_name)
+
+#list_host = 'AGreenDCBike'
+#list_name = 'climatepolitics-info'
 
 #'Pete_Weldy' 'california-dems'
 #'ericlinder' 'ca-assembly-members'
@@ -358,7 +363,12 @@ for another_user in all_data:
 
 
         page_source = driver.page_source
+        #### add script to save for trouble shooting detection
+        with open() as f:
+            f.write(pagesource)
+################
         #print(page_source)
+
         if page_source.find(".block") > 0:
             mydate = datetime.datetime.now()
             print(page_source)
