@@ -65,7 +65,7 @@ from pymongo import MongoClient
 connection = c = MongoClient() #connection = c = MongoClient(localhost', '27017') #connection = Connection('localhost', '27017')
 extradelay = 1
 days_per_query = 364
-
+from os.path import exists
 #### Arrising Errors
 #selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
 import urllib
@@ -77,7 +77,7 @@ from selenium.webdriver.remote.command import Command
 ##selenium.common.exceptions.WebDriverException: Message: unknown error: failed to close window in 20 seconds
 #Solution detect if still active after end command if so reinstruct
 def get_status(driver):
-    print("Loop1")
+    #print("Loop1")
     try:
         driver.execute(Command.STATUS)
         driver.quit()
@@ -139,7 +139,7 @@ for proc in psutil.process_iter():
 
 
 def connect_mongoDB():
-    print("Loop2")
+    #print("Loop2")
     db = connection.Twitter #db.tweets.ensure_index("id", unique=True, dropDups=True)
     print("Mongo Twitter DB Connected")
     # The MongoDB connection info. Database name is Twitter and your collection name is politicians.
@@ -164,7 +164,7 @@ id_collection = database_connections[1]
 
 # Retrieve Twitter API credentials
 def get_twitter_keys(twitterKEYfile):
-    print("Loop3")
+    #print("Loop3")
     with open(twitterKEYfile, 'r') as f:
         e = f.read()
         keys = e.split(',')
@@ -186,7 +186,7 @@ api = get_twitter_keys(twitterKEYfile)
 #### 2DO (Add pull from twitter API of list)
 #### Retrieve a list of users from twitter lists and add them to the DB if they do not exists
 def get_twit_list():
-    print("Loop4")
+    #print("Loop4")
     twit_list = []
     twitter_pull = tweepy.Cursor(api.list_members, list_host, list_name).items()
     for user in twitter_pull:
@@ -200,7 +200,7 @@ def get_twit_list():
 ######## This definition should be improved (after the rest gets improved)
 #### Add new users from twit list to the DB (id collection)
 def add_new_twit_list_members_to_db():
-    print("Loop5")
+    #print("Loop5")
     all_data = []
     start = 0
     end = 100
@@ -270,8 +270,6 @@ def add_new_twit_list_members_to_db():
 
 ####
 ###input("Press Enter to retrieve users names from twitter list")
-
-print("here line 198 now")
 try:
     sys.argv[2]
     #print(sys.argv[2:3])
@@ -304,8 +302,8 @@ else:
 
 #### Get DB list to update
 def get_user_list():
-    print("Loop6")
-    print("getting db  user list to update")
+    #print("Loop6")
+    print("getting db user list to update")
     user_list = []
     #for x in id_collection.find({"_grabEnd": {'$ne': "2009-03-30" }},{"screen_name": 1}):
     for x in id_collection.find({"_grabEnd": {'$ne': today}},{"screen_name": 1}):#.sort({"_grabStart": -1}):
@@ -377,7 +375,7 @@ def generate_url(name, _grabStart, _grabEnd):
       
 def fetch_tweets(url):
     #print("F2 Fetch Tweets Loop")      
-    print(str(url))
+    #print(str(url))
     ids = []
     
     #### Detect Blocking
@@ -472,6 +470,8 @@ for another_user in all_data:
     one_id = (dict(another_user)['id'])   #print(one_id)
     working_id = id_collection.find({'id': one_id})
     found = working_id.count()
+    
+    
     if found != 1:    #### If user is not in DB once then present an error
         print ("Error with user twitter id: " +str(one_id))
         if found == 0:
@@ -484,66 +484,63 @@ for another_user in all_data:
             diction = x
             name = diction['screen_name']
             #print(name)
-            
-            _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
-            _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
-            
+
             #datetime.date(str(tday))
             twitter_ids_filename = 'tweet_ids_' + name+'.json'
-            days = (tday - _grabStart).days + 1
-            fetch_days = str(days)
-            fetch_sessions = math.ceil(float(int(fetch_days)/days_per_query))
-            fetch_count = 0
-            print( name + " Days to fetch: " + str(fetch_days) + " Fetch sessions required: " + str(fetch_sessions) + " Current fetch count: " + str(fetch_count))
-            print ("Fetched span: " + str(_grabStart) + " " + str(_grabEnd))  
-
-            chrome_options = Options() ##Note woah selenium extensions enabling https://stackoverflow.com/questions/16511384/using-extensions-with-selenium-python
-            chrome_options.add_argument('--dns-prefetch-disable') ##options are Safari() Chrome() Firefox() Safari()
-            driver = Chrome(chrome_options=chrome_options) ##driver = webdriver.Chrome()
-            id_selector = '.time a.tweet-timestamp'
-            tweet_selector = 'li.js-stream-item'
-            firsttweet_selector = 'first-tweet-wrapper'
-            data_to_write = ""
-            import time
-            import sys
-
-            print(str(_grabStart) + " through " + today + " is our interest for: " + name)
-            #print("entering while loop")
-            while fetch_count <= fetch_sessions:
-                #print("while loop triggered")
-                fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions) 
-                ####Incrament the values searched
-                _grabStart += datetime.timedelta(days=days_per_query)
+            if (exists(list_dir + twitter_ids_filename)):
+                pass   
+            else:
+                _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
                 _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
-                print(str(fetch_count))
-            #print("WHILE LOOP IS DONE")
-            #print("ending timerrrrrrrrrrrrrrrrrrrr")
-            end_timer = time.time()
-            total_t = end_timer - start_timer
-            #print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
-            print(str("%.0f" % ((total_t)/60)) + " minutes taken to update the file of " + str(name) )
-            
-            driver.quit()
-            print(get_status(driver))
-            ####tday-_grabStart
+                
 
-            #_grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
-            #_grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d'))
-            #days_to_fetch = int(str(tday-_grabStart).split(" ")[0])
-            #print("Fetching : " + days_to_fetch + " days.
-            #print("Starting with: " + str(_grabStart))
-            #print("Through: " + today)
+                 
+                days = (tday - _grabStart).days + 1
+                fetch_days = str(days)
+                fetch_sessions = math.ceil(float(int(fetch_days)/days_per_query))
+                fetch_count = 0
+                print( name + " Days to fetch: " + str(fetch_days) + " Fetch sessions required: " + str(fetch_sessions) + " Current fetch count: " + str(fetch_count))
+                print ("Fetched span: " + str(_grabStart) + " " + str(_grabEnd))  
 
+                chrome_options = Options() ##Note woah selenium extensions enabling https://stackoverflow.com/questions/16511384/using-extensions-with-selenium-python
+                chrome_options.add_argument('--dns-prefetch-disable') ##options are Safari() Chrome() Firefox() Safari()
+                driver = Chrome(chrome_options=chrome_options) ##driver = webdriver.Chrome()
+                id_selector = '.time a.tweet-timestamp'
+                tweet_selector = 'li.js-stream-item'
+                firsttweet_selector = 'first-tweet-wrapper'
+                data_to_write = ""
+                import time
+                import sys
 
+                print(str(_grabStart) + " through " + today + " is our interest for: " + name)
+                #print("entering while loop")
+                while fetch_count <= fetch_sessions:
+                    #print("while loop triggered")
+                    fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions) 
+                    ####Incrament the values searched
+                    _grabStart += datetime.timedelta(days=days_per_query)
+                    _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
+                    #print(str(fetch_count))
+                #print("Escaped from while loop")
+                end_timer = time.time()
+                total_t = end_timer - start_timer
+                #print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
+                print(str("%.0f" % ((total_t)/60)) + " minutes taken to update the file of " + str(name) )
+                 
+                driver.quit()
+                #print(get_status(driver))
+                 
+                 
+                 
+                ####tday-_grabStart
 
+                #_grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
+                #_grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y-%m-%d'))
+                #days_to_fetch = int(str(tday-_grabStart).split(" ")[0])
+                #print("Fetching : " + days_to_fetch + " days.
+                #print("Starting with: " + str(_grabStart))
+                #print("Through: " + today)
 
-
-   
-    
-
-
-  
-   
 
 
 

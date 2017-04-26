@@ -43,6 +43,9 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 import datetime
 
+
+path = 'tweet_ids_list/'
+
 # The MongoDB connection info. This assumes your database name is Political and your collection name is tweets.
 #connection = Connection('localhost', 27017)
 db = connection.Twitter
@@ -58,8 +61,8 @@ print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
 import sys
 import os
 # Retrieve Twitter API credentials
-twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
-#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter05.csv" #CKT
+#itterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
+twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter05.csv" #CKT
 
 with open(twitterKEYfile, 'r') as f:
     e = f.read()
@@ -108,26 +111,26 @@ def tweet_2_DB_loop(ids):
                 #print(found)
                 #print("Tweet found in db, next")
                 pass
-        print ("New additions to DB : " + str(new_additions))
-        print ("Political db tweet count is : " + str(tweet_count))
+        #print ("New additions to DB : " + str(new_additions))
+        #print ("Political db tweet count is : " + str(tweet_count))
 
 #tweet = json.loads(data)
 #collection.insert(tweet)
 
 
 tweet_ids=""
-#print(glob.glob('tweet_ids/*.json'))
-files = glob.glob('tweet_ids/*.json')
+#print(glob.glob(path +'*.json'))
+files = glob.glob(path+'*.json')
 for x in files:
-    print("Starting new list")
+    #print("Starting new list")
     with open(x, 'r') as f:
-        print(x)
+        #print(x)
         ids = json.load(f)
-        print('total ids: {}'.format(len(ids)))
+        print( x + (' total tweet ids: {}'.format(len(ids))))
         tweet_2_DB_loop(ids)
     print("Deleting list: " + x)
     os.remove(x)
-    print("Just Deleted: " + x)
+    #print("Just Deleted: " + x)
     tweet_count = db.politicians.count("id", exists= True)
     print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
 
