@@ -340,6 +340,7 @@ limit = len(user_list)
 #print (limit)
 i = math.ceil(limit / 100)
 #print (i)
+user_list = list(reversed(user_list))
 
 for go in range(i):
     print('Looking up users {} - {}'.format(start, end))
