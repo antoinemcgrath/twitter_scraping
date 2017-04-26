@@ -369,14 +369,14 @@ for go in range(i):
 
 
 def generate_url(name, _grabStart, _grabEnd):       
-    print("(F1 Generate URL Loop")      
+    #print("F1 Generate URL Loop")      
     url_A = 'https://twitter.com/search?f=tweets&vertical=default&q=from%3A'
     url_B =  name + '%20since%3A' + str(_grabStart) + '%20until%3A' + str(_grabEnd) + 'include%3Aretweets&src=typd'
     url = url_A + url_B
     return (url)
       
 def fetch_tweets(url):
-    print("(F2 Fetch Tweets Loop")      
+    #print("F2 Fetch Tweets Loop")      
     print(str(url))
     ids = []
     
@@ -396,7 +396,7 @@ def fetch_tweets(url):
         print("Sleeping for " + str(extradelay))
         sleep(extradelay)
     else:
-        print ("Delaying")
+        #print ("Delaying")
         #delay = (1+ 1000/(random.getrandbits(12)))
         delay = (1.02)
         sleep(delay)
@@ -407,7 +407,7 @@ def fetch_tweets(url):
         #### Scroll through page load page grab tweet IDs
         try:
             found_tweets = driver.find_elements_by_css_selector(tweet_selector)
-            print("scraping1")
+            #print("scraping1")
             increment = 10
             while len(found_tweets) >= increment:
                #print('Loading page to load more tweets')
@@ -422,11 +422,11 @@ def fetch_tweets(url):
                     ids.append(id)
                 except StaleElementReferenceException as e:
                     print('lost element reference', tweet)
-            print("scraping2")
+            #print("scraping2")
         except NoSuchElementException:
             pass #print('no tweets on this day')            
         try:   ##### Write twitter IDs to ID list json files
-            print("try writing1")
+            #print("try writing1")
             with open(list_dir + twitter_ids_filename) as f:
                 all_ids = ids + json.load(f)
                 data_to_write = list(set(all_ids))
@@ -437,29 +437,27 @@ def fetch_tweets(url):
                 data_to_write = list(set(all_ids))
         with open(list_dir + twitter_ids_filename, 'w') as outfile:
             json.dump(data_to_write, outfile)
-            print("try writing3")
+            #print("try writing3")
 
 
 def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions):
-    print("F3 Update DB/Incrament Loop")     
-    if str(_grabStart) < str(tday): 
-        print("Writing _grabStart into DB start")
-        print(str(_grabStart))
-        print(str(tday))
-        id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(_grabStart)}}) ##Updates id_DB to reflect latest crawl
+    #print("F3 Update DB Loop")     
+    if str(_grabEnd) < str(tday): 
+        print("Writing _grabEnd as new start into DB start")
+        print(str(_grabEnd))
+        #print(str(tday))
+        id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(_grabEnd)}}) ##Updates id_DB to reflect latest crawl
     else:
         print("Writing tday into DB start")
-        print(str(_grabStart))
+        #print(str(_grabEnd))
         print(str(tday))
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
-    _grabStart += datetime.timedelta(days=days_per_query)
-    _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
     fetch_count += 1
     print (str(fetch_sessions) + " fetches needed " + str(fetch_count) + " completed") 
     return(fetch_count)   
 
 def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions):    
-    print("(F0 Initiating Pull Loop")               
+    #print("F0 Initiating Pull Loop")               
     url = generate_url(name, _grabStart, _grabEnd)
     fetch_tweets(url)
     fetch_count = update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions)
@@ -510,13 +508,16 @@ for another_user in all_data:
             import sys
 
             print(str(_grabStart) + " through " + today + " is our interest for: " + name)
-            print("entering while loop")
+            #print("entering while loop")
             while fetch_count <= fetch_sessions:
                 #print("while loop triggered")
                 fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions) 
+                ####Incrament the values searched
+                _grabStart += datetime.timedelta(days=days_per_query)
+                _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
                 print(str(fetch_count))
-            print("WHILE LOOP IS DONE")
-            print("ending timerrrrrrrrrrrrrrrrrrrr")
+            #print("WHILE LOOP IS DONE")
+            #print("ending timerrrrrrrrrrrrrrrrrrrr")
             end_timer = time.time()
             total_t = end_timer - start_timer
             #print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
