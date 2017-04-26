@@ -64,7 +64,8 @@ from tweepy import Stream
 from pymongo import MongoClient
 connection = c = MongoClient() #connection = c = MongoClient(localhost', '27017') #connection = Connection('localhost', '27017')
 extradelay = 1
-days_per_query = 10
+days_per_query = 364
+
 #### Arrising Errors
 #selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
 import urllib
@@ -423,10 +424,8 @@ def fetch_tweets(url):
                     print('lost element reference', tweet)
             print("scraping2")
         except NoSuchElementException:
-            #print('no tweets on this day')
-            pass
-            ##### Write twitter IDs to ID list json files
-        try:
+            pass #print('no tweets on this day')            
+        try:   ##### Write twitter IDs to ID list json files
             print("try writing1")
             with open(list_dir + twitter_ids_filename) as f:
                 all_ids = ids + json.load(f)
@@ -442,13 +441,19 @@ def fetch_tweets(url):
 
 
 def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions):
-    print("(F3 Update DB/Incrament Loop")     
+    print("F3 Update DB/Incrament Loop")     
     if _grabStart < tday is True: 
+        print("Writing _grabSTart into DB start")
+        print(_grabStart)
+        print(tday)
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(_grabStart)}}) ##Updates id_DB to reflect latest crawl
     else:
+        print("Writing tday into DB start")
+        print(_grabStart)
+        print(tday)
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
-    _grabStart += datetime.timedelta(days=10)
-    _grabEnd = _grabStart + datetime.timedelta(days=10)
+    _grabStart += datetime.timedelta(days=days_per_query)
+    _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
     fetch_count += 1
     print (str(fetch_sessions) + " fetches needed " + str(fetch_count) + " completed") 
     return(fetch_count)   
@@ -480,10 +485,10 @@ for another_user in all_data:
         for x in working_id:  #for x in id_collection.find(({'id': one_id})):
             diction = x
             name = diction['screen_name']
-            print(name)
+            #print(name)
             
             _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
-            _grabEnd = _grabStart + datetime.timedelta(days=10)
+            _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
             
             #datetime.date(str(tday))
             twitter_ids_filename = 'tweet_ids_' + name+'.json'
@@ -491,7 +496,8 @@ for another_user in all_data:
             fetch_days = str(days)
             fetch_sessions = math.ceil(float(int(fetch_days)/days_per_query))
             fetch_count = 0
-            print( name + " Days to fetch: " + fetch_days)
+            print( name + " Days to fetch: " + str(fetch_days) + " Fetch sessions required: " + str(fetch_sessions) + " Current fetch count: " + str(fetch_count))
+            print ("Fetched span: " + str(_grabStart) + " " + str(_grabEnd))  
 
             chrome_options = Options() ##Note woah selenium extensions enabling https://stackoverflow.com/questions/16511384/using-extensions-with-selenium-python
             chrome_options.add_argument('--dns-prefetch-disable') ##options are Safari() Chrome() Firefox() Safari()
@@ -506,11 +512,18 @@ for another_user in all_data:
             print(str(_grabStart) + " through " + today + " is our interest for: " + name)
             print("entering while loop")
             while fetch_count <= fetch_sessions:
-                print("while loop triggered")
+                #print("while loop triggered")
                 fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions) 
-                print(fetch_count)
+                print(str(fetch_count))
             print("WHILE LOOP IS DONE")
+            print("ending timerrrrrrrrrrrrrrrrrrrr")
+            end_timer = time.time()
+            total_t = end_timer - start_timer
+            #print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
+            print(str("%.0f" % ((total_t)/60)) + " minutes taken to update the file of " + str(name) )
             
+            driver.quit()
+            print(get_status(driver))
             ####tday-_grabStart
 
             #_grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
@@ -526,12 +539,7 @@ for another_user in all_data:
 
    
     
-print("ending timerrrrrrrrrrrrrrrrrrrr")
-end_timer = time.time()
-total_t = end_timer - start_timer
-print(str("%.0f" % ((total_t)/60)) + " minutes taken to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
-driver.quit()
-print(get_status(driver))
+
 
   
    
