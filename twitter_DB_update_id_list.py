@@ -442,15 +442,15 @@ def fetch_tweets(url):
 
 def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions):
     print("F3 Update DB/Incrament Loop")     
-    if _grabStart < tday is True: 
-        print("Writing _grabSTart into DB start")
-        print(_grabStart)
-        print(tday)
+    if str(_grabStart) < str(tday): 
+        print("Writing _grabStart into DB start")
+        print(str(_grabStart))
+        print(str(tday))
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(_grabStart)}}) ##Updates id_DB to reflect latest crawl
     else:
         print("Writing tday into DB start")
-        print(_grabStart)
-        print(tday)
+        print(str(_grabStart))
+        print(str(tday))
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
     _grabStart += datetime.timedelta(days=days_per_query)
     _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
