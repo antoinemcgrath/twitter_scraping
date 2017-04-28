@@ -1,40 +1,7 @@
 #!/usr/bin/python
 
 
-#######################################################################################################################
-#### A big thank you to https://github.com/bpb27 for the base/seed code https://github.com/bpb27/twitter_scraping  ####
-#######################################################################################################################
-#### MongoDB enhanced version at: https://github.com/antoinemcgrath/twitter_scraping
-
-
-#### twitter_DB_update_id_list.py
-#### --Collect tweet ids & update mongo DB with collection progress
-##
-#### twitter_DB_update_tweets_metadata.py
-#### --Query API with tweet ids & add json response to mongoDB
-##
-#### cron__twitter_DB_update_id_list.py
-#### --Check first to see if the code is running before starting it (for cron starts)
-##
-#### This two step disjunction allows one to add tweets to your DB from a list of tweet ids that others have collected
-#### Likewise this method allows one to share lists of tweetids
-
-
-# cd /mnt/8TB/GITS/twitter_scraping
-# python3 twitter_DB_update_id_list.py
-
-# Compiles all tweet ids fetched from a users single day timeline & updates mongodb with the date completed
-# Example of gnerated URL: https://twitter.com/search?f=tweets&vertical=default&q=from%3ABarackObama%20since%3A2016-03-14%20until%3A2016-03-15include%3Aretweets&src=typd
-
-
-# ERRORS: After prolonged runs (~36hrs+) may start receiving twitter pages with no tweets.
-#         Activity is within twitter rate limit.
-#         Potential browser error
-#         Potential ISP problem
-#         Possibly triggered by brief drop in internet
-
-
-
+###########Lines 195 for example reset DB values inorder to overright crawed dates and recrawl (due to unnotticed downtime)
 
 import random
 import sys
@@ -53,9 +20,6 @@ today = str(tday)
 from datetime import date
 #from datetime import datetime
 from time import sleep
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 import tweepy #http://www.tweepy.org/
 from tweepy import TweepError
 from tweepy.streaming import StreamListener
@@ -63,37 +27,10 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from pymongo import MongoClient
 connection = c = MongoClient() #connection = c = MongoClient(localhost', '27017') #connection = Connection('localhost', '27017')
-extradelay = 1.2
-days_per_query = 1
+extradelay = 1
+days_per_query = 20
 from os.path import exists
-#### Arrising Errors
-#selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
-import urllib
-import socket
-from selenium.webdriver import Chrome
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.remote.command import Command
-##selenium.common.exceptions.WebDriverException: Message: unknown error: failed to close window in 20 seconds
-#Solution detect if still active after end command if so reinstruct
-def get_status(driver):
-    #print("Loop1")
-    try:
-        driver.execute(Command.STATUS)
-        driver.quit()
-        get_status(driver)
-        return "Alive"
-    except ConnectionRefusedError:
-        return "Connection refused"
-    except (socket.error, urllib.CannotSendRequest):
-        return "Dead"
 
-
-
-
-
-
-#
 ####
 
 #### Add users to DB from specified twitter group list
@@ -126,15 +63,6 @@ list_dir = "tweet_ids_list/"
 if not os.path.exists(list_dir):
     os.makedirs(list_dir)
 
-
-
-####Close existing webdriver activity
-import psutil
-PROCNAME = "chromedriver"
-for proc in psutil.process_iter():
-    # check whether the process name matches
-    if proc.name() == PROCNAME:
-        proc.kill()
 
 
 
@@ -229,15 +157,14 @@ def add_new_twit_list_members_to_db():
             Account_Start = (a_user)['created_at']
             _accountStart = _grabStart = _grabEnd = time.strftime('%Y-%-m-%-d', time.strptime(Account_Start,'%a %b %d %H:%M:%S +0000 %Y'))
             _db_itemcreated = _db_itemupdated = datetime.datetime.now()#collection.find({'id': one_id})        #= (a_user._json)['created_at']
-            id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}}) #FAILURE Did not ASSIGN DB VALUE TYPE AS 9 (DATE) id_collection.update({'id': one_id},{'$set' : {"_accountStart": {$field:9  int(_accountStart)}  }}) ##https://docs.mongodb.com/manual/reference/operator/query/type/
-            id_collection.update({'id': one_id},{'$set' : {"_grabStart":_grabStart}})
-            #id_collection.update({'id': one_id},{'$set' : {"_grabEnd":_grabStart}})#collection.find({"$text": {"$search": str("realDonaldTrump"), '$caseSensitive': False}}).count()        #collection.find({ '$text': { '$search': 'realDonaldTrump', '$caseSensitive': True } }).count()
-            ###for x in id_collection.find(({'id': one_id})):
-            ###    diction = x
-            ###    _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y, %m, %d'))
-            ###    _grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y, %m, %d'))
+            id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}}) 
+            id_collection.update({'id': one_id},{'$set' : {"_grabStart":_accountStart}})
+            id_collection.update({'id': one_id},{'$set' : {"_grabEnd":_accountStart}})
+
+
             pass
         else:
+            print("not found")
             pass
     print (str(user_add_count) + " new users were added to the DB")
 #############
@@ -306,13 +233,17 @@ def get_user_list():
     print("getting db user list to update")
     user_list = []
     #for x in id_collection.find({"_grabEnd": {'$ne': "2009-03-30" }},{"screen_name": 1}):
-    for x in id_collection.find({"_grabEnd": {'$ne': today}},{"screen_name": 1}):#.sort({"_grabStart": -1}):
+    for x in id_collection.find():#.sort({"_grabStart": -1}):
         diction = x
         user_list.append(diction['screen_name'])
     #print (user_list)
     print ("User list length is: " + str(len(user_list)))
+    print ("User list length is: " + str(len(user_list)))
+    print ("User list length is: " + str(len(user_list)))
+    print ("User list length is: " + str(len(user_list)))    
+    
     return (user_list)
-####driver.quit()
+
 user_list = get_user_list()
 #ser_json = api.lookup_users(screen_names = user_list)
 
@@ -379,99 +310,59 @@ def fetch_tweets(url):
     ids = []
     
     #### Detect Blocking
-    try:
-        driver.get(url)
-    except TimeoutException as ex:
-        print(ex.Message)
-        driver.navigate().refresh()
 
-    page_source = driver.page_source  
-    if page_source.find(".block") > 0:
-        mydate = datetime.datetime.now()
-        print(page_source)
-        print (mydate.strftime('Blocked at is %d %B'))
-        extradelay = extradelay + extradelay
-        print("Sleeping for " + str(extradelay))
-        sleep(extradelay)
-    else:
-        print ("Delaying")
-        #delay = (1+ 1000/(random.getrandbits(12)))
-        delay = (2.87)
-        sleep(delay)
-        #print("scraping0 updating +10 dbbbbbbbbbb     " + (str(d2)))
-        #id_collection.update({'id': one_id},{'$set' : {"_grabStart":d2}})
-        #id_collection.update({'id': one_id},{'$set' : {"_grabEnd":d2}})
-       
-        #### Scroll through page load page grab tweet IDs
-        try:
-            found_tweets = driver.find_elements_by_css_selector(tweet_selector)
-            print("scraping1")
-            increment = 10
-            while len(found_tweets) >= increment:
-               print('Loading page to load more tweets')
-               driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-               sleep(delay)
-               found_tweets = driver.find_elements_by_css_selector(tweet_selector)
-               increment += 10
-               print('{} tweets fetched, {} total'.format(len(found_tweets), len(ids)))
-            for tweet in found_tweets:
-                print("Escaping scraping 1 loop")
-                try:
-                    print("good")
-                    id = tweet.find_element_by_css_selector(id_selector).get_attribute('href').split('/')[-1]
-                    print("great")
-                    ids.append(id)
-                    print("appended")
-                except StaleElementReferenceException as e:
-                    print('lost element reference', tweet)
-            print("scraping2")
-        except NoSuchElementException:
-            pass #print('no tweets on this day')   
-                     
-        try:   ##### Write twitter IDs to ID list json files
-            print("try writing1")
-            with open(list_dir + twitter_ids_filename) as f:
-                all_ids = ids + json.load(f)
-                data_to_write = list(set(all_ids))
-        except FileNotFoundError:
-            print("try writing2")
-            with open(list_dir + twitter_ids_filename, 'w') as f:
-                all_ids = ids
-                data_to_write = list(set(all_ids))
-        with open(list_dir + twitter_ids_filename, 'w') as outfile:
-            json.dump(data_to_write, outfile)
-            print("try writing3")
+    try:   ##### Write twitter IDs to ID list json files
+        print("try writing1")
+        with open(list_dir + twitter_ids_filename) as f:
+            all_ids = ids + json.load(f)
+            data_to_write = list(set(all_ids))
+    except FileNotFoundError:
+        print("try writing2")
+        with open(list_dir + twitter_ids_filename, 'w') as f:
+            all_ids = ids
+            data_to_write = list(set(all_ids))
+    with open(list_dir + twitter_ids_filename, 'w') as outfile:
+        json.dump(data_to_write, outfile)
+        print("try writing3")
 
 
-def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions):
+def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart):
     print("F3 Update DB Loop")     
     if str(_grabEnd) < str(tday): 
         print("Writing _grabEnd as new start into DB start")
         print(str(_grabEnd))
         print(str(tday))
-        id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(_grabEnd)}}) ##Updates id_DB to reflect latest crawl
-        id_collection.update({'id': one_id},{'$set' : {"_grabEnd":str(_grabEnd)}}) ##Updates id_DB to reflect latest crawl
+        #id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(_grabEnd)}}) ##Updates id_DB to reflect latest crawl
+        id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}}) 
+        id_collection.update({'id': one_id},{'$set' : {"_grabStart":_accountStart}})
+        id_collection.update({'id': one_id},{'$set' : {"_grabEnd":_accountStart}})
     else:
         print("Writing tday into DB start")
         print(str(_grabEnd))
         print(str(tday))
-        id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
-        id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
+        #id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
+        id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}}) 
+        id_collection.update({'id': one_id},{'$set' : {"_grabStart":_accountStart}})
+        id_collection.update({'id': one_id},{'$set' : {"_grabEnd":_accountStart}})
+
+    
+    
     fetch_count += 1
     print (str(fetch_sessions) + " fetches needed " + str(fetch_count) + " completed") 
     return(fetch_count)   
 
-def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions):    
+def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart):    
     print("F0 Initiating Pull Loop")               
     url = generate_url(name, _grabStart, _grabEnd)
     fetch_tweets(url)
-    fetch_count = update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions)
+    fetch_count = update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart)
     return(fetch_count)    
     
 
 ############Update to fetch specific user based on oldest _starDate
 #### Retrieve data from DB on existing user
 for another_user in all_data:
+    print(len(all_data))
     start_timer = time.time()
     name = str(dict(another_user)['screen_name'])
     one_id = (dict(another_user)['id'])   #print(one_id)
@@ -482,62 +373,41 @@ for another_user in all_data:
     if found != 1:    #### If user is not in DB once then present an error
         print ("Error with user twitter id: " +str(one_id))
         if found == 0:
-            print("Error note: ID not in DB despite earlier attempt to add it")
+            print("Error note: ID not in DB despite earlier attempt to add it, we may be failing to add the account because it was earlier deleted from twitter")
         else:
             print ("Error note: ID in the DB more than once")  #input("Press Enter to continue")
     else:    #### Existing user access found once, fetch their last tweet capture dates
         print("we have a user to work on, line 490") #
         for x in working_id:  #for x in id_collection.find(({'id': one_id})):
+            
             diction = x
-            name = diction['screen_name']
-            print(name)
-
-            #datetime.date(str(tday))
             twitter_ids_filename = 'tweet_ids_' + name+'.json'
-            print(str((list_dir + twitter_ids_filename)))
-            print(str(exists(list_dir + twitter_ids_filename)))
-            if (exists(list_dir + twitter_ids_filename)):
-                pass   
-            else:
-                _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
-                _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
-                
+            name = diction['screen_name']
+            _accountStart = diction['_accountStart']
+            _grabStart = diction['_grabStart']
+            _grabEnd = diction['_grabEnd']
+            days = 1
+            fetch_days = str(days)
+            fetch_sessions = math.ceil(float(int(fetch_days)/days_per_query))
+            fetch_count = 0
 
-                 
-                days = (tday - _grabStart).days + 1
-                fetch_days = str(days)
-                fetch_sessions = math.ceil(float(int(fetch_days)/days_per_query))
-                fetch_count = 0
-                print( name + " Days to fetch: " + str(fetch_days) + " Fetch sessions required: " + str(fetch_sessions) + " Current fetch count: " + str(fetch_count))
-                print ("Fetched span: " + str(_grabStart) + " " + str(_grabEnd))  
 
-                chrome_options = Options() ##Note woah selenium extensions enabling https://stackoverflow.com/questions/16511384/using-extensions-with-selenium-python
-                chrome_options.add_argument('--dns-prefetch-disable') ##options are Safari() Chrome() Firefox() Safari()
-                driver = Chrome(chrome_options=chrome_options) ##driver = webdriver.Chrome()
-                id_selector = '.time a.tweet-timestamp'
-                tweet_selector = 'li.js-stream-item'
-                firsttweet_selector = 'first-tweet-wrapper'
-                data_to_write = ""
-                import time
-                import sys
 
-                print(str(_grabStart) + " through " + today + " is our interest for: " + name)
-                print("entering while loop")
-                while fetch_count <= fetch_sessions:
-                    #print("while loop triggered")
-                    fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions) 
-                    ####Incrament the values searched
-                    _grabStart += datetime.timedelta(days=days_per_query)
-                    _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
-                    #print(str(fetch_count))
+            while fetch_count <= fetch_sessions:
+                #print("while loop triggered")
+                fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart) 
+                ####Incrament the values searched
+                ##_grabStart += datetime.timedelta(days=days_per_query)
+                ##_grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
+                #print(str(fetch_count))
                 #print("Escaped from while loop")
                 end_timer = time.time()
                 total_t = end_timer - start_timer
                 #print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
                 print(str("%.0f" % ((total_t)/60)) + " minutes taken to update the file of " + str(name) )
                  
-                driver.quit()
-                #print(get_status(driver))
+
+
                  
                  
                  
