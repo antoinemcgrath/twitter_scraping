@@ -64,7 +64,7 @@ from tweepy import Stream
 from pymongo import MongoClient
 connection = c = MongoClient() #connection = c = MongoClient(localhost', '27017') #connection = Connection('localhost', '27017')
 extradelay = 1.2
-days_per_query = 1
+days_per_query = 90
 from os.path import exists
 #### Arrising Errors
 #selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status

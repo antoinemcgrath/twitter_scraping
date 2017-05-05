@@ -61,8 +61,8 @@ print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
 import sys
 import os
 # Retrieve Twitter API credentials
-#itterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
-twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter05.csv" #CKT
+twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
+twitterKEYfile2 = os.path.expanduser('~') + "/.invisible/twitter05.csv" #CKT
 
 with open(twitterKEYfile, 'r') as f:
     e = f.read()
@@ -123,17 +123,47 @@ tweet_ids=""
 files = glob.glob(path+'*.json')
 for x in files:
     #print("Starting new list")
-    with open(x, 'r') as f:
-        #print(x)
-        ids = json.load(f)
-        print( x + (' total tweet ids: {}'.format(len(ids))))
-        tweet_2_DB_loop(ids)
-    print("Deleting list: " + x)
-    os.remove(x)
-    #print("Just Deleted: " + x)
-    tweet_count = db.politicians.count("id", exists= True)
-    print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
-
+    try:
+        with open(x, 'r') as f:
+            #print(x)
+            ids = json.load(f)
+            print( x + (' total tweet ids: {}'.format(len(ids))))
+            tweet_2_DB_loop(ids)
+        print("Deleting list: " + x)
+        os.remove(x)
+        #print("Just Deleted: " + x)
+        tweet_count = db.politicians.count("id", exists= True)
+        print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
+    except tweepy.error.TweepError:
+        print ("tweepy error")
+        with open(twitterKEYfile2, 'r') as f:
+            e = f.read()
+            keys = e.split(',')
+            consumer_key = keys[0]  #consumer_key
+            consumer_secret = keys[1]  #consumer_secret
+            access_key = keys[2]  #access_key
+            access_secret = keys[3]  #access_secret
+        # http://tweepy.readthedocs.org/en/v3.1.0/getting_started.html#api
+        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_key, access_secret)
+        api = tweepy.API(auth)
+        try:
+           with open(x, 'r') as f:
+               #print(x)
+               ids = json.load(f)
+               print( x + (' total tweet ids: {}'.format(len(ids))))
+               tweet_2_DB_loop(ids)
+           print("Deleting list: " + x)
+           os.remove(x)
+           #print("Just Deleted: " + x)
+           tweet_count = db.politicians.count("id", exists= True)
+           print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
+        except tweepy.error.TweepError:
+           print ("tweepy error")
+        
+        #if e.response.status_code == 404:
+        #    print ("%s does not exist" % (twitter_id))
+            #return None
 #total ids: 29772
 tweet_count = db.politicians.count("id", exists= True)
 print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
