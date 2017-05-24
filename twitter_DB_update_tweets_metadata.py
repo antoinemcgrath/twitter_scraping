@@ -120,7 +120,11 @@ def tweet_2_DB_loop(ids):
 
 tweet_ids=""
 #print(glob.glob(path +'*.json'))
-files = glob.glob(path+'*.json')
+
+#files = glob.glob(path+'*.json')
+files = sorted(glob.glob(path+'*.json'), key=os.path.getsize)
+#files = sorted(glob.glob(path+'*.json'), key=os.path.getmtime)
+
 for x in files:
     #print("Starting new list")
     try:
@@ -129,11 +133,15 @@ for x in files:
             ids = json.load(f)
             print( x + (' total tweet ids: {}'.format(len(ids))))
             tweet_2_DB_loop(ids)
-        print("Deleting list: " + x)
-        os.remove(x)
-        #print("Just Deleted: " + x)
+            with open(x, 'w') as f:
+               f.write("[]")
+        #print("Emptied list: " + x)
+        #os.remove(x)
+
         tweet_count = db.politicians.count("id", exists= True)
         print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
+        
+        
     except tweepy.error.TweepError:
         print ("tweepy error")
         with open(twitterKEYfile2, 'r') as f:
@@ -153,8 +161,8 @@ for x in files:
                ids = json.load(f)
                print( x + (' total tweet ids: {}'.format(len(ids))))
                tweet_2_DB_loop(ids)
-           print("Deleting list: " + x)
-           os.remove(x)
+           #print("Deleting list: " + x)
+           #os.remove(x)
            #print("Just Deleted: " + x)
            tweet_count = db.politicians.count("id", exists= True)
            print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
