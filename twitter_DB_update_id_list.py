@@ -51,7 +51,8 @@ from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 from pymongo import MongoClient
-connection = c = MongoClient() #connection = c = MongoClient(localhost', '27017') #connection = Connection('localhost', '27017')
+connection = c = MongoClient() 
+#connection = c = MongoClient('localhost', '27017') #connection = Connection('localhost', '27017')
 extradelay = 1.2
 days_per_query = 90
 from os.path import exists
@@ -71,7 +72,6 @@ from selenium.webdriver.remote.command import Command
 list_host = str(sys.argv[1:2])[2:-2] #Example: 'AGreenDCBike'
 list_name = str(sys.argv[2:3])[2:-2]#Example: 'climatepolitics-info'
 
-
 #list_host = 'AGreenDCBike'
 #list_name = 'climatepolitics-leaders'
 
@@ -88,8 +88,8 @@ list_name = str(sys.argv[2:3])[2:-2]#Example: 'climatepolitics-info'
 #'AGreenDCBike' 'climatepolitics-info'
 
 #### Set which twitter API credentials to access
-twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
-#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #ck
+#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
+twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #ck
 
 list_dir = "tweet_ids_list/"
 if not os.path.exists(list_dir):
@@ -106,7 +106,6 @@ for proc in psutil.process_iter():
 
 
 def connect_mongoDB():
-    #print("Loop2")
     db = connection.Twitter #db.tweets.ensure_index("id", unique=True, dropDups=True)
     print("Mongo Twitter DB Connected")
     # The MongoDB connection info. Database name is Twitter and your collection name is politicians.
@@ -182,12 +181,14 @@ def add_new_twit_list_members_to_db():
         #tweets = api.statuses_lookup(id_batch)
         u_lists = api.lookup_users(screen_names = id_batch)
         for one_of_many in u_lists:
+            #print(one_of_many)
             all_data.append(dict(one_of_many._json))
     user_add_count = 0
     user_json = all_data
     for a_user in user_json:
-        one_id = ((a_user)['id'])   #print(one_id)
-        found = id_collection.find({'id': one_id}).count()
+        one_id = ((a_user)['id'])   
+        print((a_user)['id'])
+        found = id_collection.find({'id': id}).count()
         name = str((a_user)['screen_name'])
         if found == 0:        #### New user add to DB
             print("Uploading new user " + name + " to db")
@@ -236,7 +237,7 @@ else:
 
 
 
-#### Searc mongo return users who's dates are not today (tday)
+#### Search mongo return users who's dates are not today (tday)
 
 
 
@@ -385,29 +386,33 @@ def fetch_tweets(url):
             #print("Writing to file")
 
 
-def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions):
+def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, one_id):
     #print("F3 Update DB Loop")     
     if str(_grabEnd) < str(tday): 
-        #print("Writing _grabEnd as new start into DB start")
-        #print(str(_grabEnd))
-        #print(str(tday))
+        print("Writing _grabEnd as new start into DB start")
+        print(str(one_id))
+        print(str(id_collection))
+        print(str(_grabStart))
+        print(str(_grabEnd))
+        print(str(tday))
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(_grabEnd)}}) ##Updates id_DB to reflect latest crawl
         id_collection.update({'id': one_id},{'$set' : {"_grabEnd":str(_grabEnd)}}) ##Updates id_DB to reflect latest crawl
+        print("Updated end and start")
     else:
-        #print("Writing tday into DB start")
+        print("Writing tday into DB start")
         #print(str(_grabEnd))
         #print(str(tday))
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
-        id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
+        id_collection.update({'id': one_id},{'$set' : {"_grabEnd":str(tday)}}) ##Updates id_DB to reflect latest crawl
     fetch_count += 1
     #print (str(fetch_sessions) + " fetches needed " + str(fetch_count) + " completed") 
     return(fetch_count)   
 
-def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions):    
+def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, one_id):    
     #print("F0 Initiating Pull Loop")               
     url = generate_url(name, _grabStart, _grabEnd)
     fetch_tweets(url)
-    fetch_count = update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions)
+    fetch_count = update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, one_id)
     return(fetch_count)    
 
 
@@ -416,8 +421,9 @@ def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions):
 for another_user in all_data:
     start_timer = time.time()
     name = str(dict(another_user)['screen_name'])
-    one_id = (dict(another_user)['id'])   #print(one_id)
-    working_id = id_collection.find({'id': one_id})
+    one_id = (dict(another_user)['id_str'])   
+    #print(one_id)
+    working_id = id_collection.find({'id_str': one_id})
     found = working_id.count()
     
     
@@ -438,6 +444,8 @@ for another_user in all_data:
             twitter_ids_filename = 'tweet_ids_' + name+'.json'
             #print(str((list_dir + twitter_ids_filename)))
             #print(str(exists(list_dir + twitter_ids_filename)))
+            ####if 1=2
+        ####THIS IS FOR SKIPPING AHEAD TO NEW ADDITIONS
             if (exists(list_dir + twitter_ids_filename)):
                 pass   
             else:
@@ -469,7 +477,7 @@ for another_user in all_data:
                 while fetch_count <= fetch_sessions:
                     try:                          
                          #print("while loop triggered")
-                         fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions) 
+                         fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, one_id) 
                          ####Incrament the values searched
                          _grabStart += datetime.timedelta(days=days_per_query)
                          _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)

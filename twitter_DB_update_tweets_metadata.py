@@ -122,8 +122,14 @@ tweet_ids=""
 #print(glob.glob(path +'*.json'))
 
 #files = glob.glob(path+'*.json')
-files = sorted(glob.glob(path+'*.json'), key=os.path.getsize)
-#files = sorted(glob.glob(path+'*.json'), key=os.path.getmtime)
+files_big2small = files_small2big = [] 
+files_small2big = sorted(glob.glob(path+'*.json'), key=os.path.getmtime)
+#files_small2big = sorted(glob.glob(path+'*.json'), key=os.path.getsize)
+for fi in reversed(files_small2big):
+    files_big2small.append(fi)
+    
+files = files_big2small
+
 
 for x in files:
     #print("Starting new list")
