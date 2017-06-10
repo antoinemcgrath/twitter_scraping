@@ -185,7 +185,8 @@ def add_new_twit_list_members_to_db():
             all_data.append(dict(one_of_many._json))
     user_add_count = 0
     user_json = all_data
-    print(user_json)
+    # print(user_json)
+    print(id)
     for a_user in user_json:
         one_id = ((a_user)['id'])
         print(one_id)
