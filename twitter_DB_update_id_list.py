@@ -191,7 +191,7 @@ def add_new_twit_list_members_to_db():
         one_id = ((a_user)['id'])
         print(one_id)
         print((a_user)['id'])
-        found = id_collection.find({'id': id}).count()
+        found = id_collection.find({'id_str': id}).count()
         name = str((a_user)['screen_name'])
         if found == 0:        #### New user add to DB
             print("Uploading new user " + name + " to db")
@@ -199,11 +199,11 @@ def add_new_twit_list_members_to_db():
             id_collection.insert(a_user)
             Account_Start = (a_user)['created_at']
             _accountStart = _grabStart = _grabEnd = time.strftime('%Y-%-m-%-d', time.strptime(Account_Start,'%a %b %d %H:%M:%S +0000 %Y'))
-            _db_itemcreated = _db_itemupdated = datetime.datetime.now()#collection.find({'id': one_id})        #= (a_user._json)['created_at']
-            id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}}) #FAILURE Did not ASSIGN DB VALUE TYPE AS 9 (DATE) id_collection.update({'id': one_id},{'$set' : {"_accountStart": {$field:9  int(_accountStart)}  }}) ##https://docs.mongodb.com/manual/reference/operator/query/type/
-            id_collection.update({'id': one_id},{'$set' : {"_grabStart":_grabStart}})
-            #id_collection.update({'id': one_id},{'$set' : {"_grabEnd":_grabStart}})#collection.find({"$text": {"$search": str("realDonaldTrump"), '$caseSensitive': False}}).count()        #collection.find({ '$text': { '$search': 'realDonaldTrump', '$caseSensitive': True } }).count()
-            ###for x in id_collection.find(({'id': one_id})):
+            _db_itemcreated = _db_itemupdated = datetime.datetime.now()#collection.find({'id_str': one_id})        #= (a_user._json)['created_at']
+            id_collection.update({'id_str': one_id},{'$set' : {"_accountStart":_accountStart}}) #FAILURE Did not ASSIGN DB VALUE TYPE AS 9 (DATE) id_collection.update({'id_str': one_id},{'$set' : {"_accountStart": {$field:9  int(_accountStart)}  }}) ##https://docs.mongodb.com/manual/reference/operator/query/type/
+            id_collection.update({'id_str': one_id},{'$set' : {"_grabStart":_grabStart}})
+            #id_collection.update({'id_str': one_id},{'$set' : {"_grabEnd":_grabStart}})#collection.find({"$text": {"$search": str("realDonaldTrump"), '$caseSensitive': False}}).count()        #collection.find({ '$text': { '$search': 'realDonaldTrump', '$caseSensitive': True } }).count()
+            ###for x in id_collection.find(({'id_str': one_id})):
             ###    diction = x
             ###    _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y, %m, %d'))
             ###    _grabEnd = dt.date(dt.strptime(diction['_grabEnd'], '%Y, %m, %d'))
@@ -346,8 +346,8 @@ def fetch_tweets(url):
         delay = (1)
         sleep(delay)
         #print("scraping0 updating +10 dbbbbbbbbbb     " + (str(d2)))
-        #id_collection.update({'id': one_id},{'$set' : {"_grabStart":d2}})
-        #id_collection.update({'id': one_id},{'$set' : {"_grabEnd":d2}})
+        #id_collection.update({'id_str': one_id},{'$set' : {"_grabStart":d2}})
+        #id_collection.update({'id_str': one_id},{'$set' : {"_grabEnd":d2}})
 
         #### Scroll through page load page grab tweet IDs
         try:
@@ -438,7 +438,7 @@ for another_user in all_data:
             print ("Error note: ID in the DB more than once")  #input("Press Enter to continue")
     else:    #### Existing user access found once, fetch their last tweet capture dates
         #print("we have a user to work on, line 490") #
-        for x in working_id:  #for x in id_collection.find(({'id': one_id})):
+        for x in working_id:  #for x in id_collection.find(({'id_str': one_id})):
             diction = x
             name = diction['screen_name']
             #print(name)
