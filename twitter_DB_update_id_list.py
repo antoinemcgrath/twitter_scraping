@@ -188,10 +188,10 @@ def add_new_twit_list_members_to_db():
     # print(user_json)
     print(id)
     for a_user in user_json:
-        one_id = ((a_user)['id'])
+        one_id = str((a_user)['id'])
         print(one_id)
         print((a_user)['id'])
-        found = id_collection.find({'id_str': id}).count()
+        found = id_collection.find({'id_str': one_id}).count()
         name = str((a_user)['screen_name'])
         if found == 0:        #### New user add to DB
             print("Uploading new user " + name + " to db")
