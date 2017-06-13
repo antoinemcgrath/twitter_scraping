@@ -166,7 +166,7 @@ def get_twit_list():
 ######## This definition should be improved (after the rest gets improved)
 #### Add new users from twit list to the DB (id collection)
 def add_new_twit_list_members_to_db():
-    print("Loop5")
+    #print("Loop5")
     all_data = []
     start = 0
     end = 100
@@ -186,11 +186,11 @@ def add_new_twit_list_members_to_db():
     user_add_count = 0
     user_json = all_data
     # print(user_json)
-    print(id)
+    #print(id)
     for a_user in user_json:
         one_id = str((a_user)['id'])
-        print(one_id)
-        print((a_user)['id'])
+        #print(one_id)
+        #print((a_user)['id'])
         found = id_collection.find({'id_str': one_id}).count()
         name = str((a_user)['screen_name'])
         if found == 0:        #### New user add to DB
