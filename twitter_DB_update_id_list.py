@@ -254,6 +254,8 @@ def get_user_list():
         diction = x
         user_list.append(diction['screen_name'])
     #print (user_list)
+    ###### LIST SHORTCUT
+    ######user_list = ['Steve_Glazer','AsmFrazier','KansenChu','CBakerAD16','Baker4Assembly']
     print ("User list length is: " + str(len(user_list)))
     return (user_list)
 ####driver.quit()
