@@ -54,7 +54,7 @@ from pymongo import MongoClient
 connection = c = MongoClient()
 #connection = c = MongoClient('localhost', '27017') #connection = Connection('localhost', '27017')
 extradelay = 1.2
-days_per_query = 90
+days_per_query = 5
 from os.path import exists
 #### Arrising Errors
 #selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
@@ -109,11 +109,11 @@ def connect_mongoDB():
     db = connection.Twitter #db.tweets.ensure_index("id", unique=True, dropDups=True)
     print("Mongo Twitter DB Connected")
     # The MongoDB connection info. Database name is Twitter and your collection name is politicians.
-    db.politicians.ensure_index( "id", unique=True, dropDups=True )
+    db.politicians.ensure_index( "id_str", unique=True, dropDups=True )
     collection = db.politicians
     print("Collection politicians connected")
     # The MongoDB connection info. Database name is Twitter and your collection name is id_politicians.
-    db.id_politicians.ensure_index( "id", unique=True, dropDups=True )
+    db.id_politicians.ensure_index( "id_str", unique=True, dropDups=True )
     id_collection = db.id_politicians
     print("Collection id_politicians connected")
     #### tweet_count = db.politicians.count("id", exists= True)
@@ -188,10 +188,10 @@ def add_new_twit_list_members_to_db():
     # print(user_json)
     #print(id)
     for a_user in user_json:
-        one_id = str((a_user)['id'])
+        one_id = str((a_user)['id']) #twitter data
         #print(one_id)
         #print((a_user)['id'])
-        found = id_collection.find({'id_str': one_id}).count()
+        found = id_collection.find({'id_str': one_id}).count() #searching db
         name = str((a_user)['screen_name'])
         if found == 0:        #### New user add to DB
             print("Uploading new user " + name + " to db")
@@ -426,8 +426,10 @@ def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, one_i
 for another_user in all_data:
     start_timer = time.time()
     name = str(dict(another_user)['screen_name'])
+    print(name)
     one_id = (dict(another_user)['id_str'])
-    #print(one_id)
+    print(one_id)
+    print(type(one_id))
     working_id = id_collection.find({'id_str': one_id})
     found = working_id.count()
 
@@ -451,14 +453,22 @@ for another_user in all_data:
             #print(str(exists(list_dir + twitter_ids_filename)))
             ####if 1=2
         ####THIS IS FOR SKIPPING AHEAD TO NEW ADDITIONS
-            if (exists(list_dir + twitter_ids_filename)):
-                pass
+            if list_host == "NEW":
+                print("NEW condition applied: Only Scrapping users which do not have an existing .json")
+                if (exists(list_dir + twitter_ids_filename)):
+                    pass
+                    
+                    
+                    
+                    
+                    
+                    
             else:
+            
+            
+#def action_loop():
                 _grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
                 _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
-
-
-
                 days = (tday - _grabStart).days + 1
                 fetch_days = str(days)
                 fetch_sessions = math.ceil(float(int(fetch_days)/days_per_query))
@@ -502,11 +512,9 @@ for another_user in all_data:
                          break
                 if breakout == True:
                     break
-
                 #print("Escaped from while loop")
                 end_timer = time.time()
                 total_t = end_timer - start_timer
                 #print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
                 print(str("%.0f" % ((total_t)/60)) + " minutes taken to update the file of " + str(name) )
-
                 driver.quit()
