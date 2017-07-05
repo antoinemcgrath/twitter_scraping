@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 
-###########Lines 195 for example reset DB values inorder to overright crawed dates and recrawl (due to unnotticed downtime)
+###########Lines 195 for example reset DB values inorder to overwrite crawled dates and recrawl (due to unnotticed downtime)
 
 import random
 import sys
