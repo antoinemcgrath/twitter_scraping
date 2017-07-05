@@ -56,8 +56,12 @@ list_name = str(sys.argv[2:3])[2:-2]#Example: 'climatepolitics-info'
 #'AGreenDCBike' 'climatepolitics-info'
 
 #### Set which twitter API credentials to access
-twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
-#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #ck
+
+#Setup Twitter
+#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #
+twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter02.csv" #AGreenDCBike
+#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter03.csv" #
+#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter05.csv" #
 
 list_dir = "tweet_ids_list/"
 if not os.path.exists(list_dir):
@@ -157,7 +161,7 @@ def add_new_twit_list_members_to_db():
             Account_Start = (a_user)['created_at']
             _accountStart = _grabStart = _grabEnd = time.strftime('%Y-%-m-%-d', time.strptime(Account_Start,'%a %b %d %H:%M:%S +0000 %Y'))
             _db_itemcreated = _db_itemupdated = datetime.datetime.now()#collection.find({'id': one_id})        #= (a_user._json)['created_at']
-            id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}}) 
+            id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}})
             id_collection.update({'id': one_id},{'$set' : {"_grabStart":_accountStart}})
             id_collection.update({'id': one_id},{'$set' : {"_grabEnd":_accountStart}})
 
@@ -240,8 +244,8 @@ def get_user_list():
     print ("User list length is: " + str(len(user_list)))
     print ("User list length is: " + str(len(user_list)))
     print ("User list length is: " + str(len(user_list)))
-    print ("User list length is: " + str(len(user_list)))    
-    
+    print ("User list length is: " + str(len(user_list)))
+
     return (user_list)
 
 user_list = get_user_list()
@@ -297,18 +301,18 @@ for go in range(i):
 
 
 
-def generate_url(name, _grabStart, _grabEnd):       
-    print("F1 Generate URL Loop")      
+def generate_url(name, _grabStart, _grabEnd):
+    print("F1 Generate URL Loop")
     url_A = 'https://twitter.com/search?f=tweets&vertical=default&q=from%3A'
     url_B =  name + '%20since%3A' + str(_grabStart) + '%20until%3A' + str(_grabEnd) + 'include%3Aretweets&src=typd'
     url = url_A + url_B
     return (url)
-      
+
 def fetch_tweets(url):
-    print("F2 Fetch Tweets Loop")      
+    print("F2 Fetch Tweets Loop")
     #print(str(url))
     ids = []
-    
+
     #### Detect Blocking
 
     try:   ##### Write twitter IDs to ID list json files
@@ -327,13 +331,13 @@ def fetch_tweets(url):
 
 
 def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart):
-    print("F3 Update DB Loop")     
-    if str(_grabEnd) < str(tday): 
+    print("F3 Update DB Loop")
+    if str(_grabEnd) < str(tday):
         print("Writing _grabEnd as new start into DB start")
         print(str(_grabEnd))
         print(str(tday))
         #id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(_grabEnd)}}) ##Updates id_DB to reflect latest crawl
-        id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}}) 
+        id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}})
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":_accountStart}})
         id_collection.update({'id': one_id},{'$set' : {"_grabEnd":_accountStart}})
     else:
@@ -341,23 +345,23 @@ def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, _accountS
         print(str(_grabEnd))
         print(str(tday))
         #id_collection.update({'id': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
-        id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}}) 
+        id_collection.update({'id': one_id},{'$set' : {"_accountStart":_accountStart}})
         id_collection.update({'id': one_id},{'$set' : {"_grabStart":_accountStart}})
         id_collection.update({'id': one_id},{'$set' : {"_grabEnd":_accountStart}})
 
-    
-    
-    fetch_count += 1
-    print (str(fetch_sessions) + " fetches needed " + str(fetch_count) + " completed") 
-    return(fetch_count)   
 
-def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart):    
-    print("F0 Initiating Pull Loop")               
+
+    fetch_count += 1
+    print (str(fetch_sessions) + " fetches needed " + str(fetch_count) + " completed")
+    return(fetch_count)
+
+def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart):
+    print("F0 Initiating Pull Loop")
     url = generate_url(name, _grabStart, _grabEnd)
     fetch_tweets(url)
     fetch_count = update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart)
-    return(fetch_count)    
-    
+    return(fetch_count)
+
 
 ############Update to fetch specific user based on oldest _starDate
 #### Retrieve data from DB on existing user
@@ -368,8 +372,8 @@ for another_user in all_data:
     one_id = (dict(another_user)['id'])   #print(one_id)
     working_id = id_collection.find({'id': one_id})
     found = working_id.count()
-    
-    
+
+
     if found != 1:    #### If user is not in DB once then present an error
         print ("Error with user twitter id: " +str(one_id))
         if found == 0:
@@ -379,7 +383,7 @@ for another_user in all_data:
     else:    #### Existing user access found once, fetch their last tweet capture dates
         print("we have a user to work on, line 490") #
         for x in working_id:  #for x in id_collection.find(({'id': one_id})):
-            
+
             diction = x
             twitter_ids_filename = 'tweet_ids_' + name+'.json'
             name = diction['screen_name']
@@ -395,7 +399,7 @@ for another_user in all_data:
 
             while fetch_count <= fetch_sessions:
                 #print("while loop triggered")
-                fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart) 
+                fetch_count = initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, _accountStart)
                 ####Incrament the values searched
                 ##_grabStart += datetime.timedelta(days=days_per_query)
                 ##_grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
@@ -405,12 +409,12 @@ for another_user in all_data:
                 total_t = end_timer - start_timer
                 #print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
                 print(str("%.0f" % ((total_t)/60)) + " minutes taken to update the file of " + str(name) )
-                 
 
 
-                 
-                 
-                 
+
+
+
+
                 ####tday-_grabStart
 
                 #_grabStart = dt.date(dt.strptime(diction['_grabStart'], '%Y-%m-%d'))
@@ -419,8 +423,3 @@ for another_user in all_data:
                 #print("Fetching : " + days_to_fetch + " days.
                 #print("Starting with: " + str(_grabStart))
                 #print("Through: " + today)
-
-
-
-
-
