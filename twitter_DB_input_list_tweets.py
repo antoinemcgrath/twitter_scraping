@@ -4,6 +4,7 @@ import logging
 logging.basicConfig(filename='python_debug.log', filemode='w', level=logging.DEBUG) #Stores last run
 #logging.debug('')#logging.info('')#logging.warning('')
 
+import pytz # Timezone index For twitter to date formate conversion
 import os
 import os.path
 
@@ -226,3 +227,6 @@ def action_loop():
 
 twitter_ids_filename = 'tweet_ids_' + "tw_list_input" + '.json'
 action_loop()
+
+## Date conversion
+##datetime.strptime((t['created_at']),'%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC)
