@@ -3,16 +3,24 @@ import logging
 #logging.basicConfig(filename='python_debug.log',level=logging.DEBUG) #Stores all runs
 logging.basicConfig(filename='python_debug.log', filemode='w', level=logging.DEBUG) #Stores last run
 #logging.debug('')#logging.info('')#logging.warning('')
-
+import re
 import os
 import os.path
+from time import sleep
+import json
+driver = None
+from selenium.webdriver.chrome.options import Options
 
-#Import Twitter
-import tweepy #http://www.tweepy.org/
-from tweepy import TweepError
-from tweepy.streaming import StreamListener
-from tweepy import OAuthHandler
-from tweepy import Stream
+import urllib
+import socket
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
+from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.remote.command import Command
+
 
 list_dir = "tweet_ids_list/"
 if not os.path.exists(list_dir):
@@ -32,29 +40,7 @@ for proc in psutil.process_iter():
 twitter_user = "AGreenDCBike"
 tw_lists = ["candidates", "us-ca-assembly", "us-ca-bill"]
 
-#Setup Twitter
-#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #
-twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter02.csv" #AGreenDCBike
-#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter03.csv" #
-#twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter05.csv" #
 
-def get_twitter_keys(twitterKEYfile):
-    logging.debug("Loop3")
-    with open(twitterKEYfile, 'r') as f:
-        e = f.read()
-        keys = e.split(',')
-        consumer_key = keys[0]  #consumer_key
-        consumer_secret = keys[1]  #consumer_secret
-        access_key = keys[2]  #access_key
-        access_secret = keys[3]  #access_secret
-    # http://tweepy.readthedocs.org/en/v3.1.0/getting_started.html#api
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_key, access_secret)
-    api = tweepy.API(auth)
-    return (api)
-
-api = get_twitter_keys(twitterKEYfile)
-#End Twitter Setup
 
 
 def generate_url(twitter_user, tw_list):
@@ -158,11 +144,11 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
             for tweet in found_tweets:
                 #print("Escaping scraping 1 loop")
                 try:
-                    #print("good")
+                    print("good")
                     id = tweet.find_element_by_css_selector(id_selector).get_attribute('href').split('/')[-1]
-                    #print("great")
+                    print("great")
                     ids.append(id)
-                    #print("appended")
+                    print("appended")
                 except StaleElementReferenceException as e:
                     print('lost element reference', tweet)
             #print("scraping2")
@@ -185,7 +171,7 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
             #print("Wrote to file")
 
 
-def initiate_pull(driver, tweet_selector, tw_lists):
+def initiate_pull(driver, tweet_selector, tw_lists, id_selector):
     #print("F0 Initiating Pull Loop")
     for tw_list in tw_lists:
         url = generate_url(twitter_user, tw_list)
@@ -204,7 +190,7 @@ def action_loop():
     import sys
     #print("entering while loop")
     breakout = False
-    fetch_count = initiate_pull(driver, tweet_selector, tw_lists)
+    fetch_count = initiate_pull(driver, tweet_selector, tw_lists, id_selector)
 
     driver.quit()
     for proc in psutil.process_iter():
