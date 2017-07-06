@@ -42,9 +42,6 @@ today = str(tday)
 driver = None
 from datetime import date
 from time import sleep
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 import tweepy #http://www.tweepy.org/
 from tweepy import TweepError
 from tweepy.streaming import StreamListener
@@ -60,11 +57,19 @@ from os.path import exists
 #selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
 import urllib
 import socket
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
+
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.command import Command
 
+import logging
+#logging.basicConfig(filename='python_debug.log',level=logging.DEBUG) #Stores all runs
+logging.basicConfig(filename='python_debug.log', filemode='w', level=logging.DEBUG) #Stores last run
+#logging.debug('')#logging.info('')#logging.warning('')
 
 #### Add users to DB from specified twitter group list
 # For: https://twitter.com/AGreenDCBike/lists/climatepolitics-info
@@ -130,7 +135,7 @@ id_collection = database_connections[1]
 
 # Retrieve Twitter API credentials
 def get_twitter_keys(twitterKEYfile):
-    #print("Loop3")
+    logging.debug("Loop3")
     with open(twitterKEYfile, 'r') as f:
         e = f.read()
         keys = e.split(',')
@@ -152,7 +157,7 @@ api = get_twitter_keys(twitterKEYfile)
 #### 2DO (Add pull from twitter API of list)
 #### Retrieve a list of users from twitter lists and add them to the DB if they do not exists
 def get_twit_list():
-    #print("Loop4")
+    logging.debug("Loop4")
     twit_list = []
     twitter_pull = tweepy.Cursor(api.list_members, list_host, list_name).items()
     for user in twitter_pull:
@@ -166,7 +171,7 @@ def get_twit_list():
 ######## This definition should be improved (after the rest gets improved)
 #### Add new users from twit list to the DB (id collection)
 def add_new_twit_list_members_to_db():
-    #print("Loop5")
+    logging.debug("Loop5")
     all_data = []
     start = 0
     end = 100
@@ -185,12 +190,12 @@ def add_new_twit_list_members_to_db():
             all_data.append(dict(one_of_many._json))
     user_add_count = 0
     user_json = all_data
-    #print(user_json)
-    #print(id)
+    logging.debug(user_json)
+    logging.debug(id)
     for a_user in user_json:
         one_id = str((a_user)['id']) #twitter data
-        #print(one_id)
-        #print((a_user)['id'])
+        logging.debug(one_id)
+        logging.debug((a_user)['id'])
         found = id_collection.find({'id_str': one_id}).count() #searching db
         name = str((a_user)['screen_name'])
         if found == 0:        #### New user add to DB
@@ -222,8 +227,8 @@ def add_new_twit_list_members_to_db():
 ###input("Press Enter to retrieve users names from twitter list")
 try:
     sys.argv[2]
-    #print(sys.argv[2:3])
-    #print(sys.argv[2:3])
+    logging.debug(sys.argv[2:3])
+    logging.debug(sys.argv[2:3])
 except IndexError:
     sys_arg_exists = False
     print("No new list provided for addition to DB")
@@ -246,7 +251,7 @@ else:
 
 #### Get DB list to update
 def get_user_list():
-    #print("Loop6")
+    logging.debug("Loop6")
     print("getting db user list to update")
     user_list = []
     #for x in id_collection.find({"_grabEnd": {'$ne': "2009-03-30" }},{"screen_name": 1}):
@@ -286,8 +291,8 @@ for go in range(i):
     u_lists = api.lookup_users(screen_names = id_batch)
     print(len(u_lists))
     for one_of_many in u_lists:
-        #print("PRINTING ONE OF MANY")
-        #print(one_of_many)
+        logging.debug("PRINTING ONE OF MANY")
+        logging.debug(one_of_many)
         try:
             all_data.append(dict(one_of_many._json))
         except tweepy.error.TweepError as e:
@@ -300,14 +305,14 @@ for go in range(i):
 
 
 def generate_url(name, _grabStart, _grabEnd):
-    #print("F1 Generate URL Loop")
+    logging.debug("F1 Generate URL Loop")
     url_A = 'https://twitter.com/search?f=tweets&vertical=default&q=from%3A'
     url_B =  name + '%20since%3A' + str(_grabStart) + '%20until%3A' + str(_grabEnd) + 'include%3Aretweets&src=typd'
     url = url_A + url_B
     return (url)
 
 def fetch_tweets(url, driver, tweet_selector, id_selector):
-    #print("F2 Fetch Tweets Loop")
+    logging.debug("F2 Fetch Tweets Loop")
     #print(str(url))
     ids = []
 
@@ -322,7 +327,7 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
           #print("try start")
           driver.get(url)
           #print("try done")
-       
+
        except TimeoutException as ex:
            print("except error start")
            print(ex.Message)
@@ -339,7 +344,7 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
         input("Press Enter to continue")
 
 
-    #print("if")
+    logging.debug("if")
     if page_source.find(".block") > 0:
         mydate = datetime.datetime.now()
         print(page_source)
@@ -382,7 +387,7 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
                     print('lost element reference', tweet)
             #print("scraping2")
         except NoSuchElementException:
-            pass 
+            pass
             #print('no tweets on this day')
         try:   ##### Write twitter IDs to ID list json files
             #print("Open file if exists")
@@ -551,8 +556,6 @@ for another_user in all_data:
                 if (exists(list_dir + twitter_ids_filename)):
                     pass
                 else:
-                    action_loop()  
+                    action_loop()
             else:
                 action_loop()
-            
-
