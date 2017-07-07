@@ -130,31 +130,55 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
 
         #### Scroll through page load page grab tweet IDs
         try:
+            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+            print("scroll")
+            sleep(delay)
             #print("trying to found tweets")
             found_tweets = driver.find_elements_by_css_selector(tweet_selector)
-            #print("scraping1")
-            increment = 10
-            while len(found_tweets) >= increment:
-                #print('Loading page to load more tweets')
-                driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                sleep(delay)
-                found_tweets = driver.find_elements_by_css_selector(tweet_selector)
-                increment += 10
-            print('{} tweets fetched'.format(len(found_tweets)))
+            for found in found_tweets:
+                print(found)
             for tweet in found_tweets:
                 #print("Escaping scraping 1 loop")
                 try:
-                    print("good")
                     id = tweet.find_element_by_css_selector(id_selector).get_attribute('href').split('/')[-1]
-                    print("great")
+                    print(id)
                     ids.append(id)
-                    print("appended")
+                    print(str(len(ids)) + " :id length")
                 except StaleElementReferenceException as e:
                     print('lost element reference', tweet)
+            #print("scraping1")
+            increment = 38
+            while len(found_tweets) >= increment:
+                #print('Loading page to load more tweets')
+                driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                print("scroll")
+                sleep(delay)
+                found_tweets = driver.find_elements_by_css_selector(tweet_selector)
+                for tweet in found_tweets:
+                    #print("Escaping scraping 1 loop")
+                    try:
+                        id = tweet.find_element_by_css_selector(id_selector).get_attribute('href').split('/')[-1]
+                        print(id)
+                        ids.append(id)
+                        print(str(len(ids)) + " :id length")
+                    except StaleElementReferenceException as e:
+                        print('lost element reference', tweet)
+                increment += 10
+            print('{} tweets fetched'.format(len(found_tweets)))
             #print("scraping2")
         except NoSuchElementException:
-            pass
+            try:   ##### Write twitter IDs to ID list json files
+                #print("Open file if exists")
+                with open(list_dir + twitter_ids_filename) as f:
+                    all_ids = ids + json.load(f)
+                    data_to_write = list(set(all_ids))
+            except FileNotFoundError:
+                #print("FILE DOES NOT EXIST, creating file")
+                all_ids = ids
+                data_to_write = list(set(all_ids))
             print('no tweets found')
+            pass
+
 
         try:   ##### Write twitter IDs to ID list json files
             #print("Open file if exists")
