@@ -135,8 +135,8 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
             sleep(delay)
             #print("trying to found tweets")
             found_tweets = driver.find_elements_by_css_selector(tweet_selector)
-            for found in found_tweets:
-                print(found)
+            #for found in found_tweets:
+            #    print(found)
             for tweet in found_tweets:
                 #print("Escaping scraping 1 loop")
                 try:
