@@ -87,7 +87,12 @@ for tw_list in tw_lists:
     try:
         #API.list_timeline(owner, slug[, since_id][, max_id][, per_page][, page])
         twrecents = api.list_timeline(owner_screen_name=twitter_user, slug=tw_list, count=200)
+        # http://docs.tweepy.org/en/v3.5.0/cursor_tutorial.html?highlight=lists
+        #
+        #  for a_tweet in tweepy.Cursor(api.list_timeline(owner_screen_name=twitter_user, slug=tw_list, count=200)).items(200):
+
         # Would this enable me to go further back in timeline?: General Stream Search # for tweet in tweepy.Cursor(api.search, q="google", rpp=100, count=20, result_type="recent", include_entities=True, lang="en").items(200):
+        # The new method is more efficient http://docs.tweepy.org/en/v3.5.0/cursor_tutorial.html?highlight=lists
         for tweet in twrecents:
             all_data = []
             count = count + 1
