@@ -46,14 +46,9 @@ import datetime
 
 path = 'tweet_ids_list/'
 
-# The MongoDB connection info. This assumes your database name is Political and your collection name is tweets.
-#connection = Connection('localhost', 27017)
 db = connection.Twitter
-#db.tweets.ensure_index("id", unique=True, dropDups=True)
-#db.tweets.create_index("id", unique=True, dropDups=True)
 db.politicians_test.ensure_index( "id", unique=True, dropDups=True )
 collection = db.politicians_test
-
 
 tweet_count = db.politicians_test.count("id", exists= True)
 print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
@@ -90,67 +85,31 @@ for tw_list in tw_lists:
         # http://docs.tweepy.org/en/v3.5.0/cursor_tutorial.html?highlight=lists
         #
         #  for a_tweet in tweepy.Cursor(api.list_timeline(owner_screen_name=twitter_user, slug=tw_list, count=200)).items(200):
-
         # Would this enable me to go further back in timeline?: General Stream Search # for tweet in tweepy.Cursor(api.search, q="google", rpp=100, count=20, result_type="recent", include_entities=True, lang="en").items(200):
         # The new method is more efficient http://docs.tweepy.org/en/v3.5.0/cursor_tutorial.html?highlight=lists
         for tweet in twrecents:
             all_data = []
             count = count + 1
-
-
-            #print (count, tweet.id_str, tweet.created_at, tweet.text)
-            #print (dict(tweet._json))
+            #print (count, tweet.id_str, tweet.created_at, tweet.text) #print (dict(tweet._json))
             one_id = (dict(tweet._json)['id'])
             found = collection.find({'id': one_id}).count()
-            #print(one_id)
             if found == 0:
-                #print(found)
                 #print("inputing tweet to db")
                 new_additions += 1
 
                 #### Date calculations
-                print("tw provided created at:")
-                print(dict(tweet._json)['created_at'])
+                #print(dict(tweet._json)['created_at'])
                 one_created_at_UNIXtime = (int(datetime.datetime.strptime(dict(tweet._json)['created_at'],'%a %b %d %H:%M:%S +0000 %Y').strftime("%s")))
-                print(one_created_at_UNIXtime)
-
-                print("inputing created at:")
-                print(dict(tweet._json)['user']['created_at'])
                 one_usercreated_at_UNIXtime = (int(datetime.datetime.strptime(dict(tweet._json)['user']['created_at'],'%a %b %d %H:%M:%S +0000 %Y').strftime("%s")))
-                print(one_usercreated_at_UNIXtime)
-
+                #print(one_usercreated_at_UNIXtime)
                 data = dict(tweet._json)
                 ## Merge embedded dictionaries {user}
                 json_user_addition = {'created_at_UNIXtime': one_usercreated_at_UNIXtime}
                 json_addition = {'created_at_UNIXtime': one_created_at_UNIXtime}
                 #new_json_user = {**(data['user']), **(json_user_addition)}
                 data['user'].update(json_user_addition)
-                #print (data)
-
                 data.update(json_addition)
-
-                #new_json = {**(data), **(json_addition)}
-                #print (new_json)
-
-                #json = new_json['user'] = new_json_user
-
-                #print (neww)
-                print (data)
-
-                #print(type(dict(tweet._json)))
-                #new_json_user =  {**(dict(tweet._json)['user']), **new}
-                # = {'created_at_UNIXtime': one_created_at_UNIXtime, 'user': }
-
-                #print(type(new))
-                #test = {**(dict(tweet._json)), **new}
-                #print(test)
-
-                #(tweet._json).append({'created_at_UNIXtime': one_created_at_UNIXtime})
-                #tweet.append({'one_user.created_at_UNIXtime': one_usercreated_at_UNIXtime})
-
-                #print((dict(tweet._json)))
-                #all_data.append(dict(tweet._json))
-
+                #print (data)
                 all_data.append(data)
                 collection.insert(data)
                 pass
