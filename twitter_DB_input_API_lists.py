@@ -51,11 +51,11 @@ path = 'tweet_ids_list/'
 db = connection.Twitter
 #db.tweets.ensure_index("id", unique=True, dropDups=True)
 #db.tweets.create_index("id", unique=True, dropDups=True)
-db.politicians.ensure_index( "id", unique=True, dropDups=True )
-collection = db.politicians
+db.politicians_test.ensure_index( "id", unique=True, dropDups=True )
+collection = db.politicians_test
 
 
-tweet_count = db.politicians.count("id", exists= True)
+tweet_count = db.politicians_test.count("id", exists= True)
 print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
 
 import sys
@@ -96,6 +96,8 @@ for tw_list in tw_lists:
         for tweet in twrecents:
             all_data = []
             count = count + 1
+
+
             #print (count, tweet.id_str, tweet.created_at, tweet.text)
             #print (dict(tweet._json))
             one_id = (dict(tweet._json)['id'])
@@ -105,10 +107,53 @@ for tw_list in tw_lists:
                 #print(found)
                 #print("inputing tweet to db")
                 new_additions += 1
+
+                #### Date calculations
+                print("tw provided created at:")
+                print(dict(tweet._json)['created_at'])
+                one_created_at_UNIXtime = (int(datetime.datetime.strptime(dict(tweet._json)['created_at'],'%a %b %d %H:%M:%S +0000 %Y').strftime("%s")))
+                print(one_created_at_UNIXtime)
+
+                print("inputing created at:")
+                print(dict(tweet._json)['user']['created_at'])
+                one_usercreated_at_UNIXtime = (int(datetime.datetime.strptime(dict(tweet._json)['user']['created_at'],'%a %b %d %H:%M:%S +0000 %Y').strftime("%s")))
+                print(one_usercreated_at_UNIXtime)
+
+                data = dict(tweet._json)
+                ## Merge embedded dictionaries {user}
+                json_user_addition = {'created_at_UNIXtime': one_usercreated_at_UNIXtime}
+                json_addition = {'created_at_UNIXtime': one_created_at_UNIXtime}
+                #new_json_user = {**(data['user']), **(json_user_addition)}
+                data['user'].update(json_user_addition)
+                #print (data)
+
+                data.update(json_addition)
+
+                #new_json = {**(data), **(json_addition)}
+                #print (new_json)
+
+                #json = new_json['user'] = new_json_user
+
+                #print (neww)
+                print (data)
+
+                #print(type(dict(tweet._json)))
+                #new_json_user =  {**(dict(tweet._json)['user']), **new}
+                # = {'created_at_UNIXtime': one_created_at_UNIXtime, 'user': }
+
+                #print(type(new))
+                #test = {**(dict(tweet._json)), **new}
+                #print(test)
+
+                #(tweet._json).append({'created_at_UNIXtime': one_created_at_UNIXtime})
+                #tweet.append({'one_user.created_at_UNIXtime': one_usercreated_at_UNIXtime})
+
+                #print((dict(tweet._json)))
+                #all_data.append(dict(tweet._json))
+
+                all_data.append(data)
+                collection.insert(data)
                 pass
-            #collection.find({'id': 'one_id'})
-                all_data.append(dict(tweet._json))
-                collection.insert(tweet._json)
             else:
                 #print(found)
                 #print("Tweet found in db, next")

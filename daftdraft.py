@@ -1,10 +1,17 @@
 
+import json
+import math
+from pymongo import MongoClient
+import datetime
+connection = c = MongoClient()
+db = connection.Twitter
+#db.tweets.create_index("id", unique=True, dropDups=True)
+db.politicians_test.ensure_index( "id", unique=True, dropDups=True )
+collection = db.politicians_test
 
-gen_time = int(datetime.datetime.strptime("Mon Jul 03 02:37:16 +0000 2017",'%a %b %d %H:%M:%S +0000 %Y').strftime("%s"))
-result = db.politicians.find({ "created_at_UNIXtime": { "$gt": gen_time }, "user.screen_name": users_re, "text": keywords_re})
 
-BEST
 
+##Similar direct in mongo## db.politicians_test.find().forEach(function(doc){doc.created_at = new Date(doc.created_at);db.politicians_test.save(doc)})
 from bson.objectid import ObjectId
 not_UNIXtimed = db.politicians.find({ "created_at": {'$exists': True}, "user.created_at": {'$exists': True}, "created_at_UNIXtime": {'$exists': False}})
 not_UNIXtimed.count()
