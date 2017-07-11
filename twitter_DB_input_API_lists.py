@@ -47,10 +47,10 @@ import datetime
 path = 'tweet_ids_list/'
 
 db = connection.Twitter
-db.politicians_test.ensure_index( "id", unique=True, dropDups=True )
-collection = db.politicians_test
+db.politicians.ensure_index( "id", unique=True, dropDups=True )
+collection = db.politicians
 
-tweet_count = db.politicians_test.count("id", exists= True)
+tweet_count = db.politicians.count("id", exists= True)
 print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
 
 import sys
@@ -81,7 +81,7 @@ for tw_list in tw_lists:
     new_additions = 0
     try:
         #API.list_timeline(owner, slug[, since_id][, max_id][, per_page][, page])
-        twrecents = api.list_timeline(owner_screen_name=twitter_user, slug=tw_list, count=200)
+        twrecents = api.list_timeline(owner_screen_name=twitter_user, slug=tw_list, count=300)
         # http://docs.tweepy.org/en/v3.5.0/cursor_tutorial.html?highlight=lists
         #
         #  for a_tweet in tweepy.Cursor(api.list_timeline(owner_screen_name=twitter_user, slug=tw_list, count=200)).items(200):
