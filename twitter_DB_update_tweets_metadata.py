@@ -10,7 +10,7 @@
 #### twitter_DB_update_id_list.py
 #### --Collect tweet ids & update mongo DB with collection progress
 ##
-#### twitter_DB_update_tweets_metadata.py 
+#### twitter_DB_update_tweets_metadata.py
 #### --Query API with tweet ids & add json response to mongoDB
 ##
 #### cron__twitter_DB_update_id_list.py
@@ -122,12 +122,12 @@ tweet_ids=""
 #print(glob.glob(path +'*.json'))
 
 #files = glob.glob(path+'*.json')
-files_big2small = files_small2big = [] 
+files_big2small = files_small2big = []
 files_small2big = sorted(glob.glob(path+'*.json'), key=os.path.getmtime)
 #files_small2big = sorted(glob.glob(path+'*.json'), key=os.path.getsize)
 for fi in reversed(files_small2big):
     files_big2small.append(fi)
-    
+
 files = files_big2small
 
 
@@ -146,8 +146,8 @@ for x in files:
 
         tweet_count = db.politicians.count("id", exists= True)
         print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
-        
-        
+
+
     except tweepy.error.TweepError:
         print ("tweepy error")
         with open(twitterKEYfile2, 'r') as f:
@@ -174,10 +174,36 @@ for x in files:
            print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
         except tweepy.error.TweepError:
            print ("tweepy error")
-        
+
         #if e.response.status_code == 404:
         #    print ("%s does not exist" % (twitter_id))
             #return None
 #total ids: 29772
 tweet_count = db.politicians.count("id", exists= True)
 print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
+
+
+
+##### UPDATE DATES TO UNIX
+
+import json
+import math
+from pymongo import MongoClient
+import datetime
+connection = c = MongoClient()
+db = connection.Twitter
+#db.tweets.create_index("id", unique=True, dropDups=True)
+db.politicians_test.ensure_index( "id", unique=True, dropDups=True )
+collection = db.politicians_test
+
+
+##Similar direct in mongo## db.politicians_test.find().forEach(function(doc){doc.created_at = new Date(doc.created_at);db.politicians_test.save(doc)})
+from bson.objectid import ObjectId
+not_UNIXtimed = db.politicians.find({ "created_at": {'$exists': True}, "user.created_at": {'$exists': True}, "created_at_UNIXtime": {'$exists': False}})
+not_UNIXtimed.count()
+for one_item in not_UNIXtimed:
+    one_created_at_UNIXtime = (int(datetime.datetime.strptime(one_item['created_at'],'%a %b %d %H:%M:%S +0000 %Y').strftime("%s")))
+    one_usercreated_at_UNIXtime = (int(datetime.datetime.strptime(one_item['user']['created_at'],'%a %b %d %H:%M:%S +0000 %Y').strftime("%s")))
+    one_id = (str(one_item['_id']))
+    print (one_id +" "+ str(one_created_at_UNIXtime) +" "+ str(one_usercreated_at_UNIXtime))
+    db.politicians.update_one({'_id': ObjectId(one_id)}, {'$set': {'created_at_UNIXtime': one_created_at_UNIXtime, 'user.created_at_UNIXtime': one_usercreated_at_UNIXtime}})
