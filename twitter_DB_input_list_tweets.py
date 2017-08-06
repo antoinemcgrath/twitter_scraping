@@ -131,7 +131,8 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
     if page_source.find(".block") > 0:
         mydate = datetime.datetime.now()
         print(page_source)
-        print (mydate.strftime('Blocked at is %d %B'))
+        print (mydate.strftime('Blocked at is %d %B'))('US_CA_Senate', 'US_CA_Legislature_Latest_Actions', 'us-ca-senate', 'BotResource:US_CA_Hashes')
+
         extradelay = extradelay + extradelay
         print("Sleeping for " + str(extradelay))
         sleep(extradelay)
@@ -162,7 +163,7 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
                 except StaleElementReferenceException as e:
                     print('lost element reference', tweet)
             #print("scraping1")
-            increment = 38
+            increment = 10
             while len(found_tweets) >= increment:
                 #print('Loading page to load more tweets')
                 driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
