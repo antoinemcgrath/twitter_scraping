@@ -27,7 +27,7 @@
 *.sdf
 *.pyc
 *.xml
-
+*.log
 
 
 ipch/
