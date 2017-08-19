@@ -50,8 +50,9 @@ from tweepy import Stream
 from pymongo import MongoClient
 connection = c = MongoClient()
 #connection = c = MongoClient('localhost', '27017') #connection = Connection('localhost', '27017')
-extradelay = 1.2
-days_per_query = 90
+delay = 1 + 1000/(random.getrandbits(12))
+extradelay = 12.2
+days_per_query = 30
 from os.path import exists
 #### Arrising Errors
 #selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
@@ -179,7 +180,7 @@ def add_new_twit_list_members_to_db():
     i = math.ceil(limit / 100)   # print (i)
     for go in range(i):
         print('Looking up users {} - {}'.format(start, end))
-        sleep(.1)  # default 6 needed to prevent hitting API rate limit
+        sleep(delay)  # default 6 needed to prevent hitting API rate limit
         id_batch = twit_list[start:end]
         start += 100
         end += 100
@@ -282,7 +283,7 @@ user_list = list(reversed(user_list))
 
 for go in range(i):
     print('Looking up users {} - {}'.format(start, end))
-    sleep(1)  # needed to prevent hitting API rate limit
+    sleep(delay)  # needed to prevent hitting API rate limit
     id_batch = user_list[start:end]
     start += 100
     end += 100
@@ -349,15 +350,15 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
         mydate = datetime.datetime.now()
         print(page_source)
         print (mydate.strftime('Blocked at is %d %B'))
-        extradelay = extradelay + extradelay
+        extradelay = extradelay + extradelay + 1000/(random.getrandbits(12))
         print("Sleeping for " + str(extradelay))
         sleep(extradelay)
 
     else:
         #print ("Delaying")
-        #delay = (1+ 1000/(random.getrandbits(12)))
-        delay = (1)
-        sleep(delay)
+        delay = (extradelay + 1000/(random.getrandbits(12)))
+
+        sleep(delay+extradelay)
         #print("scraping0 updating +10 dbbbbbbbbbb     " + (str(d2)))
         #id_collection.update({'id_str': one_id},{'$set' : {"_grabStart":d2}})
         #id_collection.update({'id_str': one_id},{'$set' : {"_grabEnd":d2}})
