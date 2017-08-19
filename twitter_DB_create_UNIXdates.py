@@ -6,8 +6,8 @@ import datetime
 connection = c = MongoClient()
 db = connection.Twitter
 #db.tweets.create_index("id", unique=True, dropDups=True)
-db.politicians_test.ensure_index( "id", unique=True, dropDups=True )
-collection = db.politicians_test
+db.politicians.ensure_index( "id", unique=True, dropDups=True )
+collection = db.politicians
 
 
 
