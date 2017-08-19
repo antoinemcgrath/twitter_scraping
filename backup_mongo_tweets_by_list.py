@@ -11,9 +11,6 @@ import tweepy
 import re
 import time
 import errno
-
-from time import sleep
-import pymongo
 from bson.json_util import dumps
 from pymongo import MongoClient
 connection = c = MongoClient()
