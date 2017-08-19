@@ -60,7 +60,10 @@ __pycache__/
 deletelist.txt
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2c7a3649b7d4f8faedffe285e558c6f5c903d714
 api_keys.json
 geckodriver.log
 /investigating_blank_pages/additional
