@@ -3,12 +3,15 @@
 #### Specify your list
 list = 'members-of-congress'
 user = 'cspan' # Or allow to be set as the key owner user on line ~#22
+backups_dir = "backups"
 
 import os
 import json
 import tweepy
 import re
 import time
+import errno
+
 from time import sleep
 import pymongo
 from bson.json_util import dumps
@@ -85,19 +88,20 @@ def get(name):
 
 
 #### Create directories when they do not exist
-def make_path_exist("backups/" + path):
+def make_path_exist( path):
     try:
-        os.makedirs("backups/" + path)
+        os.makedirs( path)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
 
+make_path_exist(backups_dir)
 
-make_path_exist(list)
-
+backups_list_dir = backups_dir + "/" + list
+make_path_exist(backups_list_dir)
 
 for name in list2:
     cat = get(name)
-    text_file = open("backups/" +list + "/" + name + ".json", "w")
+    text_file = open( backups_list_dir + "/" + name + ".json", "w")
     text_file.write(cat)
     text_file.close()
