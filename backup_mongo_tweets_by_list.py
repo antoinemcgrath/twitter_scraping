@@ -85,9 +85,9 @@ def get(name):
 
 
 #### Create directories when they do not exist
-def make_path_exist(path):
+def make_path_exist("backups/" + path):
     try:
-        os.makedirs(path)
+        os.makedirs("backups/" + path)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
@@ -98,7 +98,6 @@ make_path_exist(list)
 
 for name in list2:
     cat = get(name)
-    text_file = open(list + "/" + name + ".json", "w")
+    text_file = open("backups/" +list + "/" + name + ".json", "w")
     text_file.write(cat)
     text_file.close()
-        
