@@ -59,63 +59,60 @@ twitter_rates()
 
 
 
+friends = api.friends_ids(api.me().id)
+followers = api.followers_ids(api.me().id)
+print("Starting: Friend count:",len(friends))
+print("Starting: Follower count:",len(followers))
 
-#### Get the list of users
-#followers = api.followers_ids(user)
-list1 = friends = api.friends_ids(user)
-print("The number of users followed is: " +str(len(list1)))
-
-
-#### Get list of user ids from those within the list of interest
-listed = []
-for page in tweepy.Cursor(api.list_members, user, list).pages():
-    listed.extend(page)
-    #time.sleep(2)
-    twitter_rates()
-    #print(len(listed))
-
-list2=[]
-for one in listed:
-    list2.append(one.id)
-
-print("The number of users in the destination list is: " +str(len(list2)))
+notfollowingback = [x for x in friends if x not in followers]
+print("Starting: Not following back:", len(notfollowingback))
 
 
-#### Remove those user ids which are already in the list
-list3 = []
-list3 =  [x for x in list1 if x not in list2]
-
-
-print("The number of users to be transfered to the desitination list is: " +str(len(list3)))
-
-#### Stop script if there are no users to add to the destination
-if list3 == []:
-    twitter_rates()
-    print("All users in destination list already.")
-    exit()
-else:
-    pass
-
-#### Add each user in list3 to the list, print twitter API rates and sleep if errors occur
-index = 0
-max_index = len(list3)-1
-print(max_index)
-while True:
-  one = list3[index]
-  try:
-    api.add_list_member(user_id=one, slug=list, owner_screen_name=user)
-    #print(one)
-    time.sleep(6) #6secs
-    index += 1
-    print(index)
-    if max_index < index:
-      break
-  except tweepy.error.TweepError as e:
-    twitter_rates()
-    print (e.reason)
-    time.sleep(10800) #3hrs
-
+for a_user_id in notfollowingback:
+    a_user = api.get_user(a_user_id)
+    print("Unfollowing %s" % a_user.screen_name)
+    try:
+        a_user.unfollow()
+    #except:
+    #    print("  .. failed, sleeping for 5 seconds and then trying again.")
+    except tweepy.error.TweepError as e:
+        twitter_rates()
+        print (e.reason)
+        time.sleep(10800) #3hrs
+        a_user.unfollow()
+    #print(" .. completed, sleeping for 1 second.")
+    time.sleep(1)
 
 
 print("Completed")
 twitter_rates()
+
+
+print("Starting: Friend count:",len(friends))
+print("Starting: Follower count:",len(followers))
+print("Starting: Not following back:", len(notfollowingback))
+
+
+friends = api.friends_ids(api.me().id)
+followers = api.followers_ids(api.me().id)
+print("New: Friend count:",len(friends))
+print("New: Follower count:",len(followers))
+
+notfollowingback = [x for x in friends if x not in followers]
+print("New: Not following back:", len(notfollowingback))
+
+
+#### To print the number of users a person follows (aid for detecting bots and commerical opperations)
+'''
+friends = api.friends(api.me().id)
+followers = api.followers_ids(api.me().id)
+len(followers)
+foll = []
+for a_user_id in followers:
+    a_user = api.get_user(a_user_id)
+    foll.append(a_user)
+
+for a_user_id in followers:
+    a_user = api.get_user(a_user_id)
+    print(a_user.friends_count, "https://twitter.com/"+a_user.screen_name)
+'''
