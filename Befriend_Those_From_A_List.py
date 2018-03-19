@@ -2,12 +2,13 @@
 
 #### Specify your destination list
 list = 'leaders'
-
+#list = 'favs-always-follow'
 
 import json
 import tweepy
 import time
 import re
+import random
 
 #### Load API keys file
 keys_json = json.load(open('/usr/local/keys.json'))
@@ -51,7 +52,8 @@ def twitter_rates():
             if used != 0:
                 print("  Twitter API:", used, "requests used,", remaining, "remaining, for API queries to", akey)
                 pass
-##twitter_rates()
+
+twitter_rates()
 
 
 
@@ -74,44 +76,32 @@ list2=[]
 for one in listed:
     list2.append(one.id)
 
-print("The number of users in the destination list is: " +str(len(list2)))
+print("The number of users in the list to follow: " +str(len(list2)))
 
 
 #### Remove those user ids which are already in the list
 list3 = []
-list3 =  [x for x in list1 if x not in list2]
+befriend =  [x for x in list2 if x not in list1]
+print("The number of users that are not allready followed: " +str(len(befriend)))
 
 
-print("The number of users to be transfered to the desitination list is: " +str(len(list3)))
-
-#### Stop script if there are no users to add to the destination
-if list3 == []:
-    twitter_rates()
-    print("All users in destination list already.")
-    exit()
-else:
-    pass
-
-#### Add each user in list3 to the list, print twitter API rates and sleep if errors occur
-index = 0
-max_index = len(list3)-1
-print(max_index)
-while True:
-  one = list3[index]
-  try:
-    api.add_list_member(user_id=one, slug=list, owner_screen_name=user)
-    #print(one)
-    time.sleep(6) #6secs
-    index += 1
-    print(index)
-    if max_index < index:
-      break
-  except tweepy.error.TweepError as e:
-    twitter_rates()
-    print (e.reason)
-    time.sleep(10800) #3hrs
-
-
+for newfriend in befriend:
+    print(str(len(befriend)), "Newfriend")
+    #print(newfriend)
+    try:
+        api.create_friendship(newfriend)
+        befriend.remove(newfriend)
+    except Exception as e:
+        er = e
+        if e.api_code == 160:
+            print("Request already made")
+            befriend.remove(newfriend)
+        else:
+            print(e)
+            input("Press Enter to continue...")
+            befriend.remove(newfriend)
+            pass
+    time.sleep(random.uniform(1,180))
 
 print("Completed")
 twitter_rates()

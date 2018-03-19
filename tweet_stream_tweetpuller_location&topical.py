@@ -26,21 +26,20 @@ AllWords = watchword_01 + watchword_02 + watchword_03
 print (AllWords)
 print (type(AllWords))
 
-#### Set twitter keys
-twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter05.csv" #CKT
-with open(twitterKEYfile, 'r') as f:
-    e = f.read()
-    keys = e.split(',')
-    consumer_key = keys[0]  #consumer_key
-    consumer_secret = keys[1]  #consumer_secret
-    access_key = keys[2]  #access_key
-    access_secret = keys[3]  #access_secret
+#### Load API keys file
+keys_json = json.load(open('/usr/local/keys.json'))
 
+#### Specify key dictionary wanted (generally [Platform][User][API])
+#Keys = keys_json["Twitter"]["ClimateCong_Bot"]["ClimatePolitics"]
+Keys = keys_json["Twitter"]["AGreenDCBike"]["HearHerVoice"]
 
-
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_key, access_secret)
+#### Access API using key dictionary definitions
+auth = tweepy.OAuthHandler( Keys['Consumer Key (API Key)'], Keys['Consumer Secret (API Secret)'] )
+auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
 api = tweepy.API(auth)
+user = Keys['Owner']
+
+
 count = 0
 
 
