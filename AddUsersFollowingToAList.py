@@ -3,7 +3,6 @@
 #### Specify your destination list
 list = 'leaders'
 
-
 import json
 import tweepy
 import time
@@ -74,7 +73,7 @@ list2=[]
 for one in listed:
     list2.append(one.id)
 
-print("The number of users in the destination list is: " +str(len(list2)))
+print("The number of users in the destination list is: ", str(len(list2)))
 
 
 #### Remove those user ids which are already in the list

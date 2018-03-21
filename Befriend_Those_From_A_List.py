@@ -82,26 +82,29 @@ print("The number of users in the list to follow: " +str(len(list2)))
 #### Remove those user ids which are already in the list
 list3 = []
 befriend =  [x for x in list2 if x not in list1]
-print("The number of users that are not allready followed: " +str(len(befriend)))
+newfriends = str(len(befriend))
+print("The number of users that are not allready followed: " + newfriends)
 
+random.shuffle(befriend)
 
 for newfriend in befriend:
-    print(str(len(befriend)), "Newfriend")
+    print(str(len(befriend)), "remaining friends to be added, of", newfriends, "total", end='\r')
     #print(newfriend)
     try:
         api.create_friendship(newfriend)
         befriend.remove(newfriend)
+        time.sleep(random.uniform(1,180))
     except Exception as e:
         er = e
         if e.api_code == 160:
-            print("Request already made")
+            print("Request to befriend made, pending approval")
             befriend.remove(newfriend)
         else:
             print(e)
             input("Press Enter to continue...")
             befriend.remove(newfriend)
             pass
-    time.sleep(random.uniform(1,180))
+
 
 print("Completed")
 twitter_rates()
