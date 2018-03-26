@@ -99,6 +99,9 @@ for newfriend in befriend:
         if e.api_code == 160:
             print("Request to befriend made, pending approval")
             befriend.remove(newfriend)
+        if e.api_code == 50:
+            print("User not found")
+            pass
         else:
             print(e)
             input("Press Enter to continue...")
