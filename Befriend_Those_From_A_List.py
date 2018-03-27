@@ -1,21 +1,31 @@
 #### A script for copying the twitter users you follow into one of your twitter lists
-
-#### Specify your destination list
-list = 'leaders'
-#list = 'favs-always-follow'
-
 import json
 import tweepy
 import time
 import re
 import random
 
-#### Load API keys file
-keys_json = json.load(open('/usr/local/keys.json'))
+#### Set Twitter API key dictionary
+try:    #### Attempt to load API keys file
+    keys_json = json.load(open('/usr/local/keys.json'))
+    #### Specify key dictionary wanted (generally [Platform][User][API])
+    #Keys = keys_json["Twitter"]["ClimateCong_Bot"]["ClimatePolitics"]
+    Keys = keys_json["Twitter"]["AGreenDCBike"]["HearHerVoice"]
+except Exception as e:
+    er = e
+    if er.errno == 2: #File not found enter key dictionary values manually
+        print("\nNo twitter API key was found in /usr/local/keys.json\n",
+             "Acquire an API key at https://apps.twitter.com/\n",
+             "to supply key manually press Enter\n")
+        Keys = {}
+        Keys['Consumer Key (API Key)'] = input('Enter the Twitter API Consumer Key\n')
+        Keys['Consumer Secret (API Secret)'] = input('Enter the Twitter API Consumer Secret Key\n')
+        Keys['Access Token'] = input('Enter the Twitter API Access Token\n')
+        Keys['Access Token Secret'] = input('Enter the Twitter API Access Token Secret\n')
+        Keys['Owner'] = input('Enter your Twitter username associated with the API keys\n')
+    else:
+        print(e)
 
-#### Specify key dictionary wanted (generally [Platform][User][API])
-#Keys = keys_json["Twitter"]["ClimateCong_Bot"]["ClimatePolitics"]
-Keys = keys_json["Twitter"]["AGreenDCBike"]["HearHerVoice"]
 
 #### Access API using key dictionary definitions
 auth = tweepy.OAuthHandler( Keys['Consumer Key (API Key)'], Keys['Consumer Secret (API Secret)'] )
@@ -23,6 +33,10 @@ auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
 api = tweepy.API(auth)
 user = Keys['Owner']
 
+#### Specify list to befriend
+url = input("Enter the URL of the list you would like to befriend\n") #leaders #favs-always-follow
+list_owner = url.split("/")[3]
+list_name = url.split("/")[5]
 
 
 #### Define twitter rate determining loop
@@ -66,7 +80,7 @@ print("The number of users followed is: " +str(len(list1)))
 
 #### Get list of user ids from those within the list of interest
 listed = []
-for page in tweepy.Cursor(api.list_members, user, list).pages():
+for page in tweepy.Cursor(api.list_members, list_owner, list_name).pages():
     listed.extend(page)
     #time.sleep(2)
     ##twitter_rates()
@@ -76,7 +90,7 @@ list2=[]
 for one in listed:
     list2.append(one.id)
 
-print("The number of users in the list to follow: " +str(len(list2)))
+print("The number of users in " + list_owner +"'s list", list_name, "is: " +str(len(list2)))
 
 
 #### Remove those user ids which are already in the list
@@ -111,3 +125,4 @@ for newfriend in befriend:
 
 print("Completed")
 twitter_rates()
+sys.exit() #End app
