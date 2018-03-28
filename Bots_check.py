@@ -16,6 +16,10 @@ import Twitter_Tools
 
 Keys = Twitter_Tools.get_api_keys()
 
+#### Access API using key dictionary definitions
+auth = tweepy.OAuthHandler( Keys['Consumer Key (API Key)'], Keys['Consumer Secret (API Secret)'] )
+auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
+api = tweepy.API(auth)
 user = Keys['Owner']
 
 

@@ -8,19 +8,14 @@ import tweepy
 import time
 import re
 
-#### Load API keys file
-keys_json = json.load(open('/usr/local/keys.json'))
+import Twitter_Tools
 
-#### Specify key dictionary wanted (generally [Platform][User][API])
-#Keys = keys_json["Twitter"]["ClimateCong_Bot"]["ClimatePolitics"]
-Keys = keys_json["Twitter"]["AGreenDCBike"]["HearHerVoice"]
-
+Keys = Twitter_Tools.get_api_keys()
 #### Access API using key dictionary definitions
 auth = tweepy.OAuthHandler( Keys['Consumer Key (API Key)'], Keys['Consumer Secret (API Secret)'] )
 auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
 api = tweepy.API(auth)
 user = Keys['Owner']
-
 
 
 #### Define twitter rate determining loop
@@ -63,7 +58,7 @@ print("The number of users followed is: " +str(len(list1)))
 
 #### Get list of user ids from those within the list of interest
 listed = []
-for page in tweepy.Cursor(api.list_members, user, list).pages():
+for page in tweepy.Cursor(api.list_members, user, list, wait_on_rate_limit=True).pages():
     listed.extend(page)
     #time.sleep(2)
     ##twitter_rates()
@@ -73,7 +68,7 @@ list2=[]
 for one in listed:
     list2.append(one.id)
 
-print("The number of users in the destination list is: ", str(len(list2)))
+print("The number of users in the destination list", list, "is: ", str(len(list2)))
 
 
 #### Remove those user ids which are already in the list

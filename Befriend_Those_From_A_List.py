@@ -63,7 +63,7 @@ print("The number of users followed is: " +str(len(list1)))
 
 #### Get list of user ids from those within the list of interest
 listed = []
-for page in tweepy.Cursor(api.list_members, list_owner, list_name).pages():
+for page in tweepy.Cursor(api.list_members, list_owner, list_name, wait_on_rate_limit=True).pages():
     listed.extend(page)
     #time.sleep(2)
     ##twitter_rates()

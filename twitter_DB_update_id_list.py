@@ -96,10 +96,15 @@ list_name = str(sys.argv[2:3])[2:-2]#Example: 'climatepolitics-info'
 #### Set which twitter API credentials to access
 #twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv"
 #twitterKEYfile = os.path.expanduser('~') + "/.invisible/twitter01.csv" #ck
+
 import Twitter_Tools
 
 Keys = Twitter_Tools.get_api_keys()
-
+#### Access API using key dictionary definitions
+auth = tweepy.OAuthHandler( Keys['Consumer Key (API Key)'], Keys['Consumer Secret (API Secret)'] )
+auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
+api = tweepy.API(auth)
+user = Keys['Owner']
 
 
 list_dir = "tweet_ids_list/"
