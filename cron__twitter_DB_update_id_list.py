@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+###################################################################
+#  Do not use any of the code I have written with harmful intent. #
+#                                                                 #
+#    By using this code you accept that everyone has the          #
+#       right to choose their own gender identity.                #
+###################################################################
+
+
 #script = "/mnt/8TB/GITS/twitter_scraping/cron__twitter_DB_update_id_list.py"
 
 #Execution schedule is everyday at 2:30AM and PM  ##crontab -e
@@ -20,4 +28,3 @@ if (str(processing).find(script) > 0) == False:
     subprocess.Popen([processor, script])
 else:
     print("True: Script " + script + " is running.")
-    

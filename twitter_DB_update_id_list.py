@@ -1,4 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
+###################################################################
+#  Do not use any of the code I have written with harmful intent. #
+#                                                                 #
+#    By using this code you accept that everyone has the          #
+#       right to choose their own gender identity.                #
+###################################################################
+
 #######################################################################################################################
 #### A big thank you to https://github.com/bpb27 for the base/seed code https://github.com/bpb27/twitter_scraping  ####
 #######################################################################################################################

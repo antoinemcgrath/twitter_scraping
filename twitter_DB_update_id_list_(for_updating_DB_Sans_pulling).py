@@ -1,4 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
+###################################################################
+#  Do not use any of the code I have written with harmful intent. #
+#                                                                 #
+#    By using this code you accept that everyone has the          #
+#       right to choose their own gender identity.                #
+###################################################################
+
 
 
 ###########Lines 195 for example reset DB values inorder to overwrite crawled dates and recrawl (due to unnotticed downtime)

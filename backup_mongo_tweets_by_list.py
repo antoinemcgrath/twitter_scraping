@@ -1,3 +1,12 @@
+#!/usr/bin/python3
+
+###################################################################
+#  Do not use any of the code I have written with harmful intent. #
+#                                                                 #
+#    By using this code you accept that everyone has the          #
+#       right to choose their own gender identity.                #
+###################################################################
+
 #### A script for exporting twitter data of a specific list
 
 #### Specify your list
@@ -17,7 +26,6 @@ connection = c = MongoClient()
 
 db = connection.Twitter
 collection = db.politicians
-
 import Twitter_Tools
 
 Keys = Twitter_Tools.get_api_keys()
@@ -28,40 +36,12 @@ api = tweepy.API(auth)
 user = Keys['Owner']
 
 
-
-
-#### Define twitter rate determining loop
-#Follow add rate limited to 1000 per 24hrs: https://support.twitter.com/articles/15364
-def twitter_rates():
-    rate_limits = api.rate_limit_status()['resources']
-    new = str(rate_limits).split("'/")
-    for anew in new[1:]: #skip the first one item it is not a limit key
-        limit_value = (anew.split("':"))[0]
-        c = (anew.split("':"))[2]
-        #d = (anew.split("':"))[3]
-        e = (anew.split("':"))[4]
-        c = int(re.sub('[^0-9]','', c))
-        ####Reset id = int(re.sub('[^0-9]','', d))
-        e = int(re.sub('[^0-9]','', e))
-        f = c-e
-        if f != 0:
-            print("Used:" + str(f) + "  Remaining:" + str(e) + "  " + limit_value)
-        else:
-            pass
-
-
-twitter_rates()
-
-
-
-
-
 #### Get list of user ids from those within the list of interest
 listed = []
 for page in tweepy.Cursor(api.list_members, user, list).pages():
     listed.extend(page)
     time.sleep(6)
-    twitter_rates()
+    Twitter_Tools.twitter_rates()
     print(len(listed))
 
 

@@ -1,5 +1,12 @@
 #!/usr/bin/python3
 
+###################################################################
+#  Do not use any of the code I have written with harmful intent. #
+#                                                                 #
+#    By using this code you accept that everyone has the          #
+#       right to choose their own gender identity.                #
+###################################################################
+
 ## To execute include the username as arguement
 ## python3 Bots_check.py AGreenDCBike
 
@@ -24,7 +31,7 @@ user = Keys['Owner']
 
 
 #### Bot probability
-mashape_key = keys_json["mashape_key"]
+mashape_key = Twitter_Tools.get_mashape_api_keys()
 twitter_app_auth = {
     'consumer_key': Keys['Consumer Key (API Key)'],
     'consumer_secret': Keys['Consumer Secret (API Secret)'],
@@ -48,13 +55,17 @@ followers = api.followers_ids(user_processing)
 print("Follower count:",len(followers))
 
 
-def detect_bot(one):
+def detect_bot(categ, one):
     try:
         result = bom.check_account(one)
         score = result['scores']['universal']
         #print(score)
         if score > 0.50:
-            print("Bot score:", score, "Possible bot: www.twitter.com/" + str(result['user']['screen_name']))
+            print(categ, ",Bot score,", score,
+            #"Following:", str(one['user']['friends_count']),
+            #"Followers:", str(one['user']['followers_count']),
+            (",Possible bot:, www.twitter.com/" + str(result['user']['screen_name']))
+            )
     except botometer.NoTimelineError as e:
         e = str(e)
         e = e.split("'screen_name': '")
@@ -76,9 +87,12 @@ def detect_bot(one):
 
 
 print("Starting: Follower count:",len(followers))
+categ = "Follower"
 for one in followers:
-    detect_bot(one)
+    detect_bot(categ,one)
+
 
 print("Starting: Friend count:",len(friends))
+categ = "Friend"
 for one in friends:
-    detect_bot(one)
+    detect_bot(categ,one)
