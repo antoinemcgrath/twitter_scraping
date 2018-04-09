@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 ###################################################################
-#  Do not use any of the code I have written with harmful intent. #
+#  Please do not use any code I have written with harmful intent. #
 #                                                                 #
 #    By using this code you accept that everyone has the          #
 #       right to choose their own gender identity.                #
@@ -12,7 +12,7 @@
 #### Perhaps not. Perhaps they were bots and have all been banned.
 #### Whatever the reason this script can help you get to the bottom of it.
 ####
-#### Run this code at will to create periodic records of users following you on Twitter.
+#### Run this code at will to create periodic .txt records of users following you on Twitter.
 
 import json
 import tweepy

@@ -1,13 +1,16 @@
 #!/usr/bin/python3
 
 ###################################################################
-#  Do not use any of the code I have written with harmful intent. #
+#  Please do not use any code I have written with harmful intent. #
 #                                                                 #
 #    By using this code you accept that everyone has the          #
 #       right to choose their own gender identity.                #
 ###################################################################
 
 import json
+import time
+import random
+
 
 #### Fetch Twitter api keys
 def get_api_keys():
@@ -53,7 +56,7 @@ def get_mashape_api_keys():
 
 
 #### Define twitter rate determining loop
-def twitter_rates():
+def twitter_rates(api):
     stats = api.rate_limit_status()  #stats['resources'].keys()
     for akey in stats['resources'].keys():
         if type(stats['resources'][akey]) == dict:
@@ -78,3 +81,48 @@ def twitter_rates():
             if used != 0:
                 print("  Twitter API:", used, "requests used,", remaining, "remaining, for API queries to", akey)
                 pass
+
+
+#### Like tweets made by a user
+def like_users_tweets(a_user_id, like_this_many, api):
+    #Note that this checks a maximum of 40 users tweets, can be extended to 200
+    path = "backups/"+str("__tweets_autoliked.txt")
+    fresh_tweets = api.user_timeline(a_user_id, count=40)
+    liked_count = 0
+    for tweet in fresh_tweets:
+        if a_user_id == tweet.user.id:
+            if tweet.text[0:4] != "RT @":
+                if tweet.in_reply_to_screen_name == None:
+                    tweet_url = (str(a_user_id) + "," + str(tweet.id) + ",https://twitter.com/" + str(tweet.user.screen_name) + "/status/" + str(tweet.id))
+                    tweet.favorite()
+                    with open(path,"a+") as file:
+                        file.write(str(tweet_url) + '\n')
+                    liked_count += 1
+                    print("like count", liked_count, tweet_url)
+                    time.sleep(random.uniform(1,40))
+                    if liked_count == like_this_many:
+                        break
+
+
+#### Unlike automated tweets made by a user
+def unlike_users_tweets(a_user_id, api):
+    path = "backups/"+str("__tweets_autoliked.txt")
+    with open(path,"r") as file:
+        lines = file.readlines()
+        tweets_to_unlike = ([line for line in file if 'Richard' in line])
+        for a_line in tweets_to_unlike:
+            unlike_id = a_line.split(",")[1]
+            try:
+                api.destroy_favorite(unlike_id)
+                finpath = "backups/"+str("__tweets_autoliked_unliked.txt")
+                with open(finpath,"a+") as finfile:
+                    finfile.write(a_line)
+                print(unlike_id, "DESTROYED")
+                time.sleep(random.uniform(1,4))
+                lines.remove(a_line)
+            except:
+                print("Failed to unlike", unlike_id)
+                pass
+    with open(path,"w") as file:
+        for line in lines:
+            file.write(line)

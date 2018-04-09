@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 ###################################################################
-#  Do not use any of the code I have written with harmful intent. #
+#  Please do not use any code I have written with harmful intent. #
 #                                                                 #
 #    By using this code you accept that everyone has the          #
 #       right to choose their own gender identity.                #
@@ -56,7 +56,7 @@ print("The number of users to be transfered to the desitination list is: " +str(
 
 #### Stop script if there are no users to add to the destination
 if list3 == []:
-    Twitter_Tools.twitter_rates()
+    Twitter_Tools.twitter_rates(api)
     print("All users in destination list already.")
     exit()
 else:
@@ -77,11 +77,11 @@ while True:
     if max_index < index:
       break
   except tweepy.error.TweepError as e:
-    Twitter_Tools.twitter_rates()
+    Twitter_Tools.twitter_rates(api)
     print (e.reason)
     time.sleep(10800) #3hrs
 
 
 
 print("Completed")
-Twitter_Tools.twitter_rates()
+Twitter_Tools.twitter_rates(api)

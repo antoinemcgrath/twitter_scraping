@@ -41,7 +41,7 @@ listed = []
 for page in tweepy.Cursor(api.list_members, user, list).pages():
     listed.extend(page)
     time.sleep(6)
-    Twitter_Tools.twitter_rates()
+    Twitter_Tools.twitter_rates(api)
     print(len(listed))
 
 

@@ -86,6 +86,7 @@ def unfollow(a_user):
                 a_user.unfollow()
                 with open(path,"a+") as file:
                     file.write(str(a_user_id) + '\n')
+                Twitter_Tools.unlike_users_tweets(a_user_id, api)
             except:
                 input("Tenacious error, press enter to skip user...")
 
@@ -97,7 +98,7 @@ for a_user_id in drop:
         pass
     else: #### User is famous Unfollowing
         print("Footprint is large", str(a_user.friends_count + a_user.followers_count))
-        if a_user.friends_count > 1.5*(a_user.followers_count):
+        if a_user.friends_count > 1.3*(a_user.followers_count): #1.5 #2 meaning unfollow if they have 2x as many followers as they follow
             pass
         else:
             print("Does not follow others often", str(a_user.friends_count), "followed", str(a_user.followers_count))
@@ -106,7 +107,7 @@ for a_user_id in drop:
 
 
 print("Completed")
-Twitter_Tools.twitter_rates()
+Twitter_Tools.twitter_rates(api)
 
 
 '''
