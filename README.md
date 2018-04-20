@@ -9,7 +9,7 @@ twitter_DB_update_id_list.py
   Collect tweet id & update mongo DB with collection progress
 
 twitter_DB_update_tweets_metadata.py
-  Query API with tweet ids & add json response to mongoDB
+  Query API with tweet id & add json response to mongoDB
 
 cron__twitter_DB_update_id_list.py
   Check first to see if the code is running before starting it (for cron starts)
