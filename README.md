@@ -6,7 +6,7 @@ MongoDB enhanced version at: https://github.com/antoinemcgrath/twitter_scraping
      Likewise this method allows one to share lists of tweetids
 
 twitter_DB_update_id_list.py
-  Collect tweet ids & update mongo DB with collection progress
+  Collect tweet id & update mongo DB with collection progress
 
 twitter_DB_update_tweets_metadata.py
   Query API with tweet ids & add json response to mongoDB
