@@ -93,16 +93,18 @@ def unfollow(a_user):
 
 for a_user_id in drop:
     a_user = api.get_user(a_user_id)
-    if a_user.friends_count + a_user.followers_count < 6000: #### If user is not famous pass
+    if a_user.friends_count + a_user.followers_count < 200: #6000  #### If user is not famous pass
         #print("Footprint is small", str(a_user.friends_count + a_user.followers_count))
         pass
     else: #### User is famous Unfollowing
-        print("Footprint is large", str(a_user.friends_count + a_user.followers_count))
-        if a_user.friends_count > 1.3*(a_user.followers_count): #1.5 #2 meaning unfollow if they have 2x as many followers as they follow
-            pass
-        else:
-            print("Does not follow others often", str(a_user.friends_count), "followed", str(a_user.followers_count))
-            unfollow(a_user)
+        unfollow(a_user)
+        
+       # print("Footprint is large", str(a_user.friends_count + a_user.followers_count))
+       # if a_user.friends_count > 1.3*(a_user.followers_count): #1.5 #2 meaning unfollow if they have 2x as many followers as they follow
+       #     pass
+       # else:
+       #     print("Does not follow others often", str(a_user.friends_count), "followed", str(a_user.followers_count))
+       #     unfollow(a_user)
     time.sleep(1.1)
 
 
