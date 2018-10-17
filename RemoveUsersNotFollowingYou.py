@@ -25,11 +25,11 @@ Keys = Twitter_Tools.get_api_keys()
 #### Access API using key dictionary definitions
 auth = tweepy.OAuthHandler( Keys['Consumer Key (API Key)'], Keys['Consumer Secret (API Secret)'] )
 auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
-api = tweepy.API(auth)
+api = tweepy.API(auth, wait_on_rate_limit=True)
 list_owner = Keys['Owner']
 
 list_name = "a-2018-favs" #### If there is a list of users that you do not want to unfollow
-
+summary = []
 
 #### Get list of friends IDs
 friends = api.friends_ids(api.me().id)
@@ -72,6 +72,8 @@ def unfollow(a_user):
         a_user.unfollow()
         with open(path,"a+") as file:
             file.write(str(a_user_id) + '\n')
+        summary.append(str("Unfollowed twitter.com/" + a_user.screen_name))
+
     except Exception as e:
         er = e
         if e.api_code == 160:
@@ -93,12 +95,15 @@ def unfollow(a_user):
 
 for a_user_id in drop:
     a_user = api.get_user(a_user_id)
+    if a_user.protected == True:
+        summary.append(str("Keeping follow, user is private twitter.com/" + a_user.screen_name))
+        pass
     if a_user.friends_count + a_user.followers_count < 200: #6000  #### If user is not famous pass
-        #print("Footprint is small", str(a_user.friends_count + a_user.followers_count))
+        summary.append(str("Keeping follow, user has small footprint " + str(a_user.friends_count + a_user.followers_count) + " twitter.com/" + a_user.screen_name))
         pass
     else: #### User is famous Unfollowing
         unfollow(a_user)
-        
+
        # print("Footprint is large", str(a_user.friends_count + a_user.followers_count))
        # if a_user.friends_count > 1.3*(a_user.followers_count): #1.5 #2 meaning unfollow if they have 2x as many followers as they follow
        #     pass
@@ -111,7 +116,9 @@ for a_user_id in drop:
 print("Completed")
 Twitter_Tools.twitter_rates(api)
 
-
+summary.sort()
+for each_action in summary:
+    print(each_action)
 '''
 for a_user_id in followers:
     a_user = api.get_user(a_user_id)

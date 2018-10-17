@@ -76,7 +76,7 @@ Keys = Twitter_Tools.get_api_keys()
 #### Access API using key dictionary definitions
 auth = tweepy.OAuthHandler( Keys['Consumer Key (API Key)'], Keys['Consumer Secret (API Secret)'] )
 auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
-api = tweepy.API(auth)
+api = tweepy.API(auth, wait_on_rate_limit=True)
 user = Keys['Owner']
 
 
@@ -162,7 +162,7 @@ for x in files:
         # http://tweepy.readthedocs.org/en/v3.1.0/getting_started.html#api
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_key, access_secret)
-        api = tweepy.API(auth)
+        api = tweepy.API(auth, wait_on_rate_limit=True)
         try:
            with open(x, 'r') as f:
                #print(x)
