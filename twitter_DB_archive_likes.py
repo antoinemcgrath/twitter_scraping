@@ -28,30 +28,32 @@ Keys = Twitter_Tools.get_api_keys()
 #### Access API using key dictionary definitions
 auth = tweepy.OAuthHandler( Keys['Consumer Key (API Key)'], Keys['Consumer Secret (API Secret)'] )
 auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
-api = tweepy.API(auth, wait_on_rate_limit=True)
+api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 user = Keys['Owner']
-
-
-ud = api.get_user(user)
-
-
 
 likes_archived = 0
 likes_unliked = 0
-UserOI = user
+UserOI = user #Can be another user (sans unlike ability)
+
 
 def unlike_likes(likes_archived,likes_unliked):
-    favs_count = api.get_user(UserOI).favourites_count
-    print("User's favorites:", favs_count)
-    for favorite in tweepy.Cursor(api.favorites, id=UserOI).items(favs_count):
-        found = collection.find({'id_str': favorite.id_str}).count() #searching db
-        if found == 0:
-            collection.insert(favorite._json)
-            likes_archived += 1
-        api.destroy_favorite(favorite.id)
-        likes_unliked += 1
-        p_text = ("Likes unliked: " + str(likes_unliked) + " Likes archived: " + str(likes_archived))
-        print(p_text)
+    try:
+        favs_count = api.get_user(UserOI).favourites_count
+        print("User's favorites:", favs_count)
+        for favorite in tweepy.Cursor(api.favorites, id=UserOI).items(favs_count):
+            print("Got favorites")
+            print("Id string:", favorite.id_str)
+            found = collection.find({'id_str': favorite.id_str}).count() #searching db
+            if found == 0:
+                collection.insert(favorite._json)
+                likes_archived += 1
+            api.destroy_favorite(favorite.id)
+            likes_unliked += 1
+            p_text = ("Likes unliked: " + str(likes_unliked) + " Likes archived: " + str(likes_archived))
+            print(p_text)
+    except Exception as e:
+        print(e)
+        input("Tenacious error, press enter to skip user...")
 
 
 unlike_likes(likes_archived,likes_unliked)
