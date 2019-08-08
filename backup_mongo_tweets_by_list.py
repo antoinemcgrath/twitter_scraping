@@ -10,8 +10,8 @@
 #### A script for exporting twitter data of a specific list
 
 #### Specify your list
-list = 'members-of-congress'
-user = 'cspan' # Or allow to be set as the key owner user on line ~#22
+list = 'kashmir'
+user = 'AGreenDCBike' # Or allow to be set as the key owner user on line ~#22
 backups_dir = "backups"
 
 import os
@@ -25,7 +25,7 @@ from pymongo import MongoClient
 connection = c = MongoClient()
 
 db = connection.Twitter
-collection = db.politicians
+collection = db.kashmir
 import Twitter_Tools
 
 Keys = Twitter_Tools.get_api_keys()
@@ -51,7 +51,7 @@ for one in listed:
 
 
 def get(name):
-    cursor = db.politicians.find({"user.screen_name": name, "retweeted": False })
+    cursor = db.kashmir.find({"user.screen_name": name, "retweeted": False })
     cursor.count()
     return dumps(cursor)
 

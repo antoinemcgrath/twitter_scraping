@@ -54,17 +54,17 @@ import datetime
 
 path = 'tweet_ids_list/'
 
-# The MongoDB connection info. This assumes your database name is Political and your collection name is tweets.
+# The MongoDB connection info. This assumes your database name is kashmir and your collection name is tweets.
 #connection = Connection('localhost', 27017)
 db = connection.Twitter
 #db.tweets.ensure_index("id", unique=True, dropDups=True)
 #db.tweets.create_index("id", unique=True, dropDups=True)
-db.politicians.ensure_index( "id", unique=True, dropDups=True )
-collection = db.politicians
+db.kashmir.ensure_index( "id", unique=True, dropDups=True )
+collection = db.kashmir
 
 
-tweet_count = db.politicians.count("id", exists= True)
-print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
+tweet_count = db.kashmir.count("id", exists= True)
+print ("DB:Twitter Collection:kashmir tweets count is : " + str(tweet_count))
 
 import sys
 import os
@@ -114,7 +114,7 @@ def tweet_2_DB_loop(ids):
                 #print("Tweet found in db, next")
                 pass
         #print ("New additions to DB : " + str(new_additions))
-        #print ("Political db tweet count is : " + str(tweet_count))
+        #print ("kashmir db tweet count is : " + str(tweet_count))
 
 #tweet = json.loads(data)
 #collection.insert(tweet)
@@ -146,8 +146,8 @@ for x in files:
         #print("Emptied list: " + x)
         #os.remove(x)
 
-        tweet_count = db.politicians.count("id", exists= True)
-        print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
+        tweet_count = db.kashmir.count("id", exists= True)
+        print ("DB:Twitter Collection:kashmir tweets count is : " + str(tweet_count))
 
 
     except tweepy.error.TweepError:
@@ -172,8 +172,8 @@ for x in files:
            #print("Deleting list: " + x)
            #os.remove(x)
            #print("Just Deleted: " + x)
-           tweet_count = db.politicians.count("id", exists= True)
-           print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
+           tweet_count = db.kashmir.count("id", exists= True)
+           print ("DB:Twitter Collection:kashmir tweets count is : " + str(tweet_count))
         except tweepy.error.TweepError:
            print ("tweepy error")
 
@@ -181,8 +181,8 @@ for x in files:
         #    print ("%s does not exist" % (twitter_id))
             #return None
 #total ids: 29772
-tweet_count = db.politicians.count("id", exists= True)
-print ("DB:Twitter Collection:political tweets count is : " + str(tweet_count))
+tweet_count = db.kashmir.count("id", exists= True)
+print ("DB:Twitter Collection:kashmir tweets count is : " + str(tweet_count))
 
 
 
@@ -195,17 +195,17 @@ import datetime
 connection = c = MongoClient()
 db = connection.Twitter
 #db.tweets.create_index("id", unique=True, dropDups=True)
-db.politicians_test.ensure_index( "id", unique=True, dropDups=True )
-collection = db.politicians_test
+db.kashmir_test.ensure_index( "id", unique=True, dropDups=True )
+collection = db.kashmir_test
 
 
-##Similar direct in mongo## db.politicians_test.find().forEach(function(doc){doc.created_at = new Date(doc.created_at);db.politicians_test.save(doc)})
+##Similar direct in mongo## db.kashmir_test.find().forEach(function(doc){doc.created_at = new Date(doc.created_at);db.kashmir_test.save(doc)})
 from bson.objectid import ObjectId
-not_UNIXtimed = db.politicians.find({ "created_at": {'$exists': True}, "user.created_at": {'$exists': True}, "created_at_UNIXtime": {'$exists': False}})
+not_UNIXtimed = db.kashmir.find({ "created_at": {'$exists': True}, "user.created_at": {'$exists': True}, "created_at_UNIXtime": {'$exists': False}})
 not_UNIXtimed.count()
 for one_item in not_UNIXtimed:
     one_created_at_UNIXtime = (int(datetime.datetime.strptime(one_item['created_at'],'%a %b %d %H:%M:%S +0000 %Y').strftime("%s")))
     one_usercreated_at_UNIXtime = (int(datetime.datetime.strptime(one_item['user']['created_at'],'%a %b %d %H:%M:%S +0000 %Y').strftime("%s")))
     one_id = (str(one_item['_id']))
-    print (one_id +" "+ str(one_created_at_UNIXtime) +" "+ str(one_usercreated_at_UNIXtime))
-    db.politicians.update_one({'_id': ObjectId(one_id)}, {'$set': {'created_at_UNIXtime': one_created_at_UNIXtime, 'user.created_at_UNIXtime': one_usercreated_at_UNIXtime}})
+    #print (one_id +" "+ str(one_created_at_UNIXtime) +" "+ str(one_usercreated_at_UNIXtime))
+    db.kashmir.update_one({'_id': ObjectId(one_id)}, {'$set': {'created_at_UNIXtime': one_created_at_UNIXtime, 'user.created_at_UNIXtime': one_usercreated_at_UNIXtime}})

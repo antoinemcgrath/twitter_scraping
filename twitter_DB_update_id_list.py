@@ -60,7 +60,7 @@ connection = c = MongoClient()
 #connection = c = MongoClient('localhost', '27017') #connection = Connection('localhost', '27017')
 delay = 1 + 1000/(random.getrandbits(12))
 extradelay = 12.2
-days_per_query = 30
+days_per_query = 100
 from os.path import exists
 #### Arrising Errors
 #selenium.common.exceptions.TimeoutException: Message: timeout: cannot determine loading status
@@ -131,17 +131,17 @@ for proc in psutil.process_iter():
 
 def connect_mongoDB():
     db = connection.Twitter #db.tweets.ensure_index("id", unique=True, dropDups=True)
-    print("Mongo Twitter DB Connected")
-    # The MongoDB connection info. Database name is Twitter and your collection name is politicians.
-    db.politicians.ensure_index( "id_str", unique=True, dropDups=True )
-    collection = db.politicians
-    print("Collection politicians connected")
-    # The MongoDB connection info. Database name is Twitter and your collection name is id_politicians.
-    db.id_politicians.ensure_index( "id_str", unique=True, dropDups=True )
-    id_collection = db.id_politicians
-    print("Collection id_politicians connected")
-    #### tweet_count = db.politicians.count("id", exists= True)
-    #### print ("Total tweet count in DB is: " + str(tweet_count))
+    #print("Mongo Twitter DB Connected")
+    # The MongoDB connection info. Database name is Twitter and your collection name is kashmir.
+    db.kashmir.ensure_index( "id_str", unique=True, dropDups=True )
+    collection = db.kashmir
+    #print("Collection kashmir connected")
+    # The MongoDB connection info. Database name is Twitter and your collection name is id_kashmir.
+    db.id_kashmir.ensure_index( "id_str", unique=True, dropDups=True )
+    id_collection = db.id_kashmir
+    #print("Collection id_kashmir connected")
+    tweet_count = db.kashmir.count("id", exists= True)
+    print ("Total tweet count in DB is: " + str(tweet_count))
     #return(db, collection, id_collection)
     return(collection, id_collection)
 
@@ -174,10 +174,10 @@ def add_new_twit_list_members_to_db():
     all_data = []
     start = 0
     end = 100
-    limit = len(twit_list)# print (limit)
-    i = math.ceil(limit / 100)   # print (i)
+    limit = len(twit_list)# #print (limit)
+    i = math.ceil(limit / 100)   # #print (i)
     for go in range(i):
-        print('Looking up users {} - {}'.format(start, end))
+        #print('Looking up users {} - {}'.format(start, end))
         sleep(delay)  # default 6 needed to prevent hitting API rate limit
         id_batch = twit_list[start:end]
         start += 100
@@ -198,7 +198,7 @@ def add_new_twit_list_members_to_db():
         found = id_collection.find({'id_str': one_id}).count() #searching db
         name = str((a_user)['screen_name'])
         if found == 0:        #### New user add to DB
-            print("Uploading new user " + name + " to db")
+            #print("Uploading new user " + name + " to db")
             user_add_count = user_add_count + 1
             id_collection.insert(a_user)
             Account_Start = (a_user)['created_at']
@@ -214,7 +214,7 @@ def add_new_twit_list_members_to_db():
             pass
         else:
             pass
-    print (str(user_add_count) + " new users were added to the DB")
+    #print (str(user_add_count) + " new users were added to the DB")
 #############
 #############
 #input("Press Enter to add new users to DB ")
@@ -230,16 +230,16 @@ try:
     logging.debug(sys.argv[2:3])
 except IndexError:
     sys_arg_exists = False
-    print("No new list provided for addition to DB")
+    #print("No new list provided for addition to DB")
 else:
     sys_arg_exists = True
     twit_list = get_twit_list()
-    print ("if list host error follows the problem is that sysarg[2:3] exists as blank")
-    print (list_host)
-    print (list_name)
-    print (str(twit_list))
-    print (len(twit_list))
-    print("Adding list of handles to DB")
+    #print ("if list host error follows the problem is that sysarg[2:3] exists as blank")
+    #print (list_host)
+    #print (list_name)
+    #print (str(twit_list))
+    #print (len(twit_list))
+    #print("Adding list of handles to DB")
     add_new_twit_list_members_to_db()
 
 
@@ -251,7 +251,7 @@ else:
 #### Get DB list to update
 def get_user_list():
     logging.debug("Loop6")
-    print("getting db user list to update")
+    #print("getting db user list to update")
     user_list = []
     #for x in id_collection.find({"_grabEnd": {'$ne': "2009-03-30" }},{"screen_name": 1}):
     for x in id_collection.find({"_grabEnd": {'$ne': today}},{"screen_name": 1}):#.sort({"_grabStart": -1}):
@@ -260,7 +260,7 @@ def get_user_list():
     #print (user_list)
     ###### LIST SHORTCUT
     ######user_list = ['Steve_Glazer','AsmFrazier','KansenChu','CBakerAD16','Baker4Assembly']
-    print ("User list length is: " + str(len(user_list)))
+    #print ("User list length is: " + str(len(user_list)))
     return (user_list)
 ####driver.quit()
 user_list = get_user_list()
@@ -288,16 +288,16 @@ for go in range(i):
     #tweets = api.statuses_lookup(id_batch)
     #print(id_batch)
     u_lists = api.lookup_users(screen_names = id_batch)
-    print(len(u_lists))
+    #print(len(u_lists))
     for one_of_many in u_lists:
-        logging.debug("PRINTING ONE OF MANY")
+        logging.debug("#printING ONE OF MANY")
         logging.debug(one_of_many)
         try:
             all_data.append(dict(one_of_many._json))
         except tweepy.error.TweepError as e:
             print ("Tweepy Error")
             print (e)
-            print("PRINTING ONE OF MANY")
+            print("#printING ONE OF MANY")
             print(one_of_many)
 
 
@@ -312,7 +312,7 @@ def generate_url(name, _grabStart, _grabEnd):
 
 def fetch_tweets(url, driver, tweet_selector, id_selector):
     logging.debug("F2 Fetch Tweets Loop")
-    #print(str(url))
+    print(str(url))
     ids = []
 
     #### Detect Blocking
@@ -323,9 +323,9 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
        number_of_attempts += 1
        #print("try")
        try:
-          #print("try start")
+          #print("try get url start")
           driver.get(url)
-          #print("try done")
+          #print("try get url done")
 
        except TimeoutException as ex:
            print("except error start")
@@ -337,7 +337,7 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
        if re.search(r"20.. Twitter", page_source):
            break
        else:
-           print("Twitter site not accessed")
+           #print("Twitter site not accessed")
            sleep(300)
     else:
         input("Press Enter to continue")
@@ -346,18 +346,19 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
     logging.debug("if")
     if page_source.find(".block") > 0:
         mydate = datetime.datetime.now()
-        print(page_source)
-        print (mydate.strftime('Blocked at is %d %B'))
-        extradelay = extradelay + extradelay + 1000/(random.getrandbits(12))
-        print("Sleeping for " + str(extradelay))
-        sleep(extradelay)
+        #print(page_source)
+        #print (mydate.strftime('Blocked at is %d %B'))
+        extra = extradelay + extradelay + 1000/(random.getrandbits(12))
+        #print("Sleeping for " + str(extra))
+        sleep(extra)
 
     else:
         #print ("Delaying")
         delay = (extradelay + 1000/(random.getrandbits(12)))
-
-        sleep(delay+extradelay)
-        #print("scraping0 updating +10 dbbbbbbbbbb     " + (str(d2)))
+        #print ("Delaying More")
+        sleep(delay)
+        print("Delayed")
+        print("scraping updating +10 db     ") #+ (str(d2)))
         #id_collection.update({'id_str': one_id},{'$set' : {"_grabStart":d2}})
         #id_collection.update({'id_str': one_id},{'$set' : {"_grabEnd":d2}})
 
@@ -387,20 +388,20 @@ def fetch_tweets(url, driver, tweet_selector, id_selector):
             #print("scraping2")
         except NoSuchElementException:
             pass
-            #print('no tweets on this day')
+            print('no tweets on this day')
         try:   ##### Write twitter IDs to ID list json files
-            #print("Open file if exists")
+            print("Open file if exists")
             with open(list_dir + twitter_ids_filename) as f:
                 all_ids = ids + json.load(f)
                 data_to_write = list(set(all_ids))
         except FileNotFoundError:
-            #print("FILE DOES NOT EXIST, creating file")
+            print("FILE DOES NOT EXIST, creating file")
             all_ids = ids
             data_to_write = list(set(all_ids))
         #print("writting to file")
         with open(list_dir + twitter_ids_filename, 'w') as outfile:
             json.dump(data_to_write, outfile)
-            #print("Wrote to file")
+            print("Wrote to file")
 
 
 def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, one_id):
@@ -422,13 +423,15 @@ def update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, one_id):
         id_collection.update({'id_str': one_id},{'$set' : {"_grabStart":str(tday)}}) ##Updates id_DB to reflect latest crawl
         id_collection.update({'id_str': one_id},{'$set' : {"_grabEnd":str(tday)}}) ##Updates id_DB to reflect latest crawl
     fetch_count += 1
-    #print (str(fetch_sessions) + " fetches needed " + str(fetch_count) + " completed")
+    print (str(fetch_sessions) + " fetches needed " + str(fetch_count) + " completed")
     return(fetch_count)
 
 def initiate_pull(name, _grabStart, _grabEnd, fetch_count, fetch_sessions, one_id, driver, tweet_selector, id_selector):
     #print("F0 Initiating Pull Loop")
     url = generate_url(name, _grabStart, _grabEnd)
+    #print ("good")
     fetch_tweets(url, driver, tweet_selector, id_selector)
+    #print("Gooder")
     fetch_count = update_progress(_grabStart, _grabEnd, fetch_count, fetch_sessions, one_id)
     return(fetch_count)
 
@@ -447,8 +450,8 @@ def action_loop():
     fetch_days = str(days)
     fetch_sessions = math.ceil(float(int(fetch_days)/days_per_query))
     fetch_count = 0
-    #print( name + " Days to fetch: " + str(fetch_days) + " Fetch sessions required: " + str(fetch_sessions) + " Current fetch count: " + str(fetch_count))
-    #print ("Fetched span: " + str(_grabStart) + " " + str(_grabEnd))
+    print( name + " Days to fetch: " + str(fetch_days) + " Fetch sessions required: " + str(fetch_sessions) + " Current fetch count: " + str(fetch_count))
+    print ("Fetched span: " + str(_grabStart) + " " + str(_grabEnd))
     chrome_options = Options() ##Note woah selenium extensions enabling https://stackoverflow.com/questions/16511384/using-extensions-with-selenium-python
     chrome_options.add_argument('--dns-prefetch-disable') ##options are Safari() Chrome() Firefox() Safari()
     driver = Chrome(chrome_options=chrome_options) ##driver = webdriver.Chrome()
@@ -458,7 +461,7 @@ def action_loop():
     data_to_write = ""
     import time
     import sys
-    print(str(_grabStart) + " through " + today + " is our interest for: " + name)
+    #print(str(_grabStart) + " through " + today + " is our interest for: " + name)
     #print("entering while loop")
     breakout = False
     while fetch_count <= fetch_sessions:
@@ -477,7 +480,7 @@ def action_loop():
             _grabEnd = _grabStart + datetime.timedelta(days=days_per_query)
             #print("fetch count end count " + str(fetch_count))
         except:
-            print("EXCEPTION ERROR END EXCEPTION ERROR END")
+            #print("EXCEPTION ERROR END EXCEPTION ERROR END")
             e = sys.exc_info()[0]
             print("EXCEPTION ERROR END EXCEPTION ERROR")
             print( "Error: %s" % e )
@@ -496,10 +499,9 @@ def action_loop():
     #print("Escaped from while loop")
     end_timer = time.time()
     total_t = end_timer - start_timer
-    #print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
+    print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
     print(str("%.0f" % ((total_t)/60)) + " minutes taken to update the file of " + str(name) )
     driver.quit()
-
 
 
 
@@ -523,7 +525,7 @@ def action_loop():
 for another_user in all_data:
     start_timer = time.time()
     name = str(dict(another_user)['screen_name'])
-    print(name)
+    #print(name)
     one_id = (dict(another_user)['id_str'])
     #print(one_id)
     #print(type(one_id))
@@ -551,7 +553,7 @@ for another_user in all_data:
             ####if 1=2
         ####THIS IS FOR SKIPPING AHEAD TO NEW ADDITIONS
             if list_host == "NEW":
-                print("NEW condition applied: Only Scrapping users which do not have an existing .json")
+                #print("NEW condition applied: Only Scrapping users which do not have an existing .json")
                 if (exists(list_dir + twitter_ids_filename)):
                     pass
                 else:
