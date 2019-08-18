@@ -13,7 +13,7 @@
 
 #### Specify your list of trusted users
 list = 'leaders'
-#### Specify your list of accounts 
+#### Specify your list of accounts
 compares = 'nm-private-list'
 print(list)
 print(compares)
@@ -76,8 +76,6 @@ def get_followers(user_id):
         #print(users)
         time.sleep(2)
     return users
-
-
 
 
 for one_account in list_of_compares:

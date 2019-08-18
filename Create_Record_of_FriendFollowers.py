@@ -27,16 +27,20 @@ auth.set_access_token( Keys['Access Token'], Keys['Access Token Secret'] )
 api = tweepy.API(auth, wait_on_rate_limit=True)
 list_owner = Keys['Owner']
 
-#### Get list of followers IDs
-followers = api.followers_name('16028499')
+screen_name_is = "everlaw"
+id_is = api.get_user(screen_name_is).id
+
+#### Get list of IDs of the users' followers
+followers = api.followers_ids(id_is)
 print("Follower count:",len(followers))
 
+
+
 epoch_time = int(time.time())
-path = "backups/"+str(epoch_time)+str("__UsersFollowingPrima.txt")
+path = "compare/"+str(epoch_time)+str("__UsersFollowing"+ str(screen_name_is) + ".txt")
 
 for a_user_id in followers:
     with open(path,"a+") as file:
-        file.write(str(a_user_id.screen_name) + ",    " + str(a_user_id.description) + '\n')
-    Twitter_Tools.twitter_rates(api)
-    sleep(20)
+        file.write(str(a_user_id) + '\n')
+
 
