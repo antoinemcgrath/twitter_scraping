@@ -499,7 +499,7 @@ def action_loop():
     #print("Escaped from while loop")
     end_timer = time.time()
     total_t = end_timer - start_timer
-    print(str("%.0f" % ((total_t)/60)) + " minutes taken. to add " + fetched_days + " days. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
+    print(str("%.0f" % ((total_t)/60)) + " minutes taken. " + str(len(data_to_write)) + " tweets in the file of " + str(name) )
     print(str("%.0f" % ((total_t)/60)) + " minutes taken to update the file of " + str(name) )
     driver.quit()
 
