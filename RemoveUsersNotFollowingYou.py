@@ -15,6 +15,9 @@
 ####
 #### Run this code to unfollow (unfriend) those Twitter users who do not follow you back
 
+
+### Rate limit 400 (un)/follows per day
+
 import json
 import tweepy
 import time
@@ -73,7 +76,6 @@ def unfollow(a_user):
         with open(path,"a+") as file:
             file.write(str(a_user_id) + '\n')
         summary.append(str("Unfollowed twitter.com/" + a_user.screen_name))
-
     except Exception as e:
         er = e
         if e.api_code == 160:
@@ -97,9 +99,11 @@ for a_user_id in drop:
     a_user = api.get_user(a_user_id)
     if a_user.protected == True:
         summary.append(str("Keeping follow, user is private twitter.com/" + a_user.screen_name))
+        print(str("Keeping follow, user is private twitter.com/" + a_user.screen_name))
         pass
     if a_user.friends_count + a_user.followers_count < 200: #6000  #### If user is not famous pass
         summary.append(str("Keeping follow, user has small footprint " + str(a_user.friends_count + a_user.followers_count) + " twitter.com/" + a_user.screen_name))
+        print(str("Keeping follow, user has small footprint " + str(a_user.friends_count + a_user.followers_count) + " twitter.com/" + a_user.screen_name))
         pass
     else: #### User is famous Unfollowing
         unfollow(a_user)
@@ -111,6 +115,7 @@ for a_user_id in drop:
        #     print("Does not follow others often", str(a_user.friends_count), "followed", str(a_user.followers_count))
        #     unfollow(a_user)
     time.sleep(1.1)
+
 
 
 print("Completed")

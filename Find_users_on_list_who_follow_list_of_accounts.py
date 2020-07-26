@@ -87,6 +87,18 @@ for one_account in list_of_compares:
             + " has " +
             str(len(set(follow_list) & set(res_users)))
             + " respected followers")
+
+        contin = Twitter_Tools.query_yes_no(str("Print respected followers? " + str(one_account.screen_name)))
+        if contin == True:
+            follow_list = get_followers((str(one_account.screen_name)))
+            for a_follower in set(follow_list) & set(res_users):
+                print(str(a_follower))
+            #Twitter_Tools.twitter_rates(api)
+            time.sleep(3)
+        else:
+            pass
+
+
         #Twitter_Tools.twitter_rates(api)
         time.sleep(3)
     else:

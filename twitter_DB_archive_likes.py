@@ -44,18 +44,22 @@ def unlike_likes(likes_archived,likes_unliked):
         print("Got favorites")
         print("Id string:", favorite.id_str)
         try:
-            found = collection.find({'id_str': favorite.id_str}).count() #searching db
-            if found == 0:
-                collection.insert(favorite._json)
+            if likes_archived == 299:
+                print("60 Min pause")
+                time.sleep(60*60)
+            else:
+                found = collection.find({'id_str': favorite.id_str}).count() #searching db
+                if found == 0:
+                    collection.insert(favorite._json)
                 likes_archived += 1
-            api.destroy_favorite(favorite.id)
-            likes_unliked += 1
-            p_text = ("Likes unliked: " + str(likes_unliked) + " Likes archived: " + str(likes_archived))
-            print(p_text)
+                api.destroy_favorite(favorite.id)
+                likes_unliked += 1
+                p_text = ("Likes unliked: " + str(likes_unliked) + " Likes archived: " + str(likes_archived))
+                print(p_text)
         except Exception as e:
             print(e)
             if 144 is e:
-                sleep(11)
+                time.sleep(11)
             else:
                 input("Tenacious error, press enter to skip user...")
 

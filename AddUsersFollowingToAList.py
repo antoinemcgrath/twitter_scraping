@@ -10,7 +10,7 @@
 #### A script for copying the twitter users you follow into one of your twitter lists
 
 #### Specify your destination list
-list = 'leaders'
+lists = ['leaders','leaders2']
 
 import json
 import tweepy
@@ -35,10 +35,11 @@ print("The number of users followed is: " +str(len(list1)))
 
 #### Get list of user ids from those within the list of interest
 listed = []
-for page in tweepy.Cursor(api.list_members, user, list, wait_on_rate_limit=True).pages():
-    listed.extend(page)
-    #time.sleep(2)
-    #print(len(listed))
+for a_list in lists:
+    for page in tweepy.Cursor(api.list_members, user, a_list, wait_on_rate_limit=True).pages():
+        listed.extend(page)
+        #time.sleep(2)
+        #print(len(listed))
 
 list2=[]
 for one in listed:
@@ -69,9 +70,9 @@ print(max_index)
 while True:
   one = list3[index]
   try:
-    api.add_list_member(user_id=one, slug=list, owner_screen_name=user)
+    api.add_list_member(user_id=one, slug=lists[1], owner_screen_name=user)
     #print(one)
-    time.sleep(6) #6secs
+    time.sleep(15) #6secs
     index += 1
     print(index)
     if max_index < index:

@@ -28,7 +28,7 @@ db.m_crs.ensure_index( "id", unique=True, dropDups=True )
 
 
 #### Set filter watchwords
-watchword_01 = ["quantitea", "Tools of Titans", "ToolsofTitans"]
+watchword_01 = ["atoms", "shoes", "feet"]
 watchword_02 = ["baratza", "sette grinder", "sette coffee", "sette cafe", "sette beans"] # Contains both pdf and crs
 watchword_03 = ["pdf crs"] # Contains both pdf and crs
 AllWords = watchword_01 + watchword_02 + watchword_03
@@ -112,6 +112,6 @@ myStream.filter(track=AllWords)
 #napa = [-122.494125,38.201767,-122.091408,38.374501]
 #napa = [-122.70,38.14,-121.90,38.49]
 #napa = [-122.347441,38.276462,-122.246761,38.319639]
-#nyc = [-74.0,40.73,-73.0,41.73]
+nyc = [-74.0,40.73,-73.0,41.73]
 #myStream.filter(locations=(napa), async=True) #Persistant until connection is closed
 #myStream.filter(track=['wine'], locations=(napa), async=True)

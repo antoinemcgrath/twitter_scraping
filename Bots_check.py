@@ -11,7 +11,7 @@
 ## python3 Bots_check.py AGreenDCBike
 
 from sys import argv
-script, screen_name_arg = argv
+script, screen_name_arg, list = argv
 import botometer
 import json
 import tweepy
@@ -46,14 +46,7 @@ bom = botometer.Botometer(wait_on_ratelimit=True,
                           **twitter_app_auth)
 
 user_processing = screen_name_arg
-
-
-friends = api.friends_ids(user_processing)
-print("Friend count:",len(friends))
-
-followers = api.followers_ids(user_processing)
-print("Follower count:",len(followers))
-
+list = list
 
 def detect_bot(categ, one):
     try:
@@ -84,6 +77,20 @@ def detect_bot(categ, one):
         got = api.get_user(one)
         got = str(got.screen_name)
         print(str("www.twitter.com/" + got), "Error", one, e)
+
+
+categ = "List member"
+for member in tweepy.Cursor(api.list_members, user_processing, list).items():
+    detect_bot(categ,member.screen_name)
+
+
+friends = api.friends_ids(user_processing)
+print("Friend count:",len(friends))
+
+followers = api.followers_ids(user_processing)
+print("Followers count:",len(followers))
+
+
 
 
 print("Starting: Follower count:",len(followers))
