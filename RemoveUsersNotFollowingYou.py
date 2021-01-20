@@ -101,12 +101,13 @@ for a_user_id in drop:
         summary.append(str("Keeping follow, user is private twitter.com/" + a_user.screen_name))
         print(str("Keeping follow, user is private twitter.com/" + a_user.screen_name))
         pass
-    if a_user.friends_count + a_user.followers_count < 200: #6000  #### If user is not famous pass
-        summary.append(str("Keeping follow, user has small footprint " + str(a_user.friends_count + a_user.followers_count) + " twitter.com/" + a_user.screen_name))
-        print(str("Keeping follow, user has small footprint " + str(a_user.friends_count + a_user.followers_count) + " twitter.com/" + a_user.screen_name))
-        pass
-    else: #### User is famous Unfollowing
-        unfollow(a_user)
+    else:
+        if a_user.friends_count + a_user.followers_count < 0: #6000  #### If user is not famous pass
+            summary.append(str("Keeping follow, user has small footprint " + str(a_user.friends_count + a_user.followers_count) + " twitter.com/" + a_user.screen_name))
+            print(str("Keeping follow, user has small footprint " + str(a_user.friends_count + a_user.followers_count) + " twitter.com/" + a_user.screen_name))
+            pass
+        else: #### User is famous Unfollowing
+            unfollow(a_user)
 
        # print("Footprint is large", str(a_user.friends_count + a_user.followers_count))
        # if a_user.friends_count > 1.3*(a_user.followers_count): #1.5 #2 meaning unfollow if they have 2x as many followers as they follow
@@ -114,7 +115,7 @@ for a_user_id in drop:
        # else:
        #     print("Does not follow others often", str(a_user.friends_count), "followed", str(a_user.followers_count))
        #     unfollow(a_user)
-    time.sleep(1.1)
+    time.sleep(100.1)
 
 
 

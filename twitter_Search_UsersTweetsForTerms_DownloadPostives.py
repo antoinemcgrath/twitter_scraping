@@ -13,7 +13,8 @@
 #The Search API is not a complete index of all Tweets, but instead an index of recent Tweets
 #The index includes between 6-9 days of Tweets
 account_list = ["tassagency_en","RT_com","SputnikInt"]
-term_list = ["congress"]
+term_list = ["extendSTART", "extendNewSTART", "New Start", "armscontrol", "arms control", "nuclearban", "noarmsrace", "nuclear", "new arms race", "nuclearproliferation", "nuclear proliferation"]
+
 
 
 #### Import Python Packages
